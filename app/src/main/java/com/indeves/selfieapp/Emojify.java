@@ -17,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.support.design.widget.FloatingActionButton;
 
-import com.example.toto.testapp_advancedapp.R;
 
 import java.io.File;
 import java.io.IOException;

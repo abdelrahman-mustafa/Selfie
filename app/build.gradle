@@ -30,4 +30,6 @@ dependencies {
     compile 'com.android.support:design:27.0.2'
     compile 'com.android.support:support-v4:27.0.2'
     compile 'com.android.support:multidex:1.0.2'
+    compile 'com.andrognito.pinlockview:pinlockview:2.1.0'
+    compile 'com.estimote:sdk:1.4.1'
 }

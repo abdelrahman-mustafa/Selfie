@@ -21,7 +21,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
-import com.example.toto.testapp_advancedapp.R;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.CameraSource;
@@ -78,7 +78,7 @@ public class CameraActivity extends AppCompatActivity {
             public void onClick(View v) {
 
 
-                mCameraSource.takePicture(null, new CameraSource.PictureCallback() {
+             /*   mCameraSource.takePicture(null, new CameraSource.PictureCallback() {
 
 
                     @Override
@@ -91,7 +91,7 @@ public class CameraActivity extends AppCompatActivity {
                         byte[] imageBytes = baos.toByteArray();
 
                     }
-                });
+                });*/
 
 
             }
@@ -150,7 +150,7 @@ public class CameraActivity extends AppCompatActivity {
             mCameraSource = new CameraSource.Builder(context, detector)
                     .setRequestedPreviewSize(640, 480)
                     .setFacing(CameraSource.CAMERA_FACING_FRONT)
-                    .setRequestedFps(30.f)
+                    .setRequestedFps(10.f)
                     .build();
 
     }

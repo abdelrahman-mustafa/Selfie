@@ -27,8 +27,6 @@ import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.example.toto.testapp_advancedapp.R;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

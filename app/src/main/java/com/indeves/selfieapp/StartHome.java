@@ -9,7 +9,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.toto.testapp_advancedapp.R;
+import com.estimote.coresdk.common.requirements.SystemRequirementsChecker;
+
 
 public class StartHome extends AppCompatActivity {
 
@@ -65,4 +66,12 @@ public class StartHome extends AppCompatActivity {
 
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SystemRequirementsChecker.checkWithDefaultDialogs(this);
+
+    }
+
 }
