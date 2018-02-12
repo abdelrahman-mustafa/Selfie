@@ -8,7 +8,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 
-import com.example.toto.testapp_advancedapp.R;
+import com.indeves.selfieapp.R;
 import com.google.android.gms.vision.face.Face;
 
 class FaceGraphic extends GraphicOverlay.Graphic {
@@ -17,19 +17,17 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     private static final float ID_Y_OFFSET = 50.0f;
     private static final float ID_X_OFFSET = -50.0f;
     private static final float BOX_STROKE_WIDTH = 5.0f;
-    Bitmap emojiBitmap;
     private static final int COLOR_CHOICES[] = {
             Color.YELLOW
     };
-    private static int mCurrentColorIndex = 0;
     private static final float EMOJI_SCALE_FACTOR = .9f;
+    private static int mCurrentColorIndex = 0;
+    Bitmap emojiBitmap;
+    Context mContext;
     private Context context;
-
     private Paint mFacePositionPaint;
     private Paint mIdPaint;
     private Paint mBoxPaint;
-
-    Context mContext;
     private volatile Face mFace;
     private int mFaceId;
     private float mFaceHappiness;

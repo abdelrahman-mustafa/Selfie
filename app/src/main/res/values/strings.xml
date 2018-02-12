@@ -21,6 +21,7 @@
     <string name="not_saved">Image not saved!</string>
     <string name="error">Error finding image</string>
     <string name="go">GO</string>
+    <string name="btn_pick_from_phone">Pick from my phone</string>
     <string name="permission_denied">Permission denied</string>
     <string name="imageview_description">The imageview that contains the emojified picture</string>
     <string name="no_faces_message">No Faces Detected</string>

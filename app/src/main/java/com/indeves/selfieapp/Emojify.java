@@ -1,6 +1,8 @@
 package com.indeves.selfieapp;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,6 +11,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -25,23 +28,18 @@ import java.io.IOException;
 public class Emojify extends AppCompatActivity {
 
 
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_STORAGE_PERMISSION = 1;
+    private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.fileprovider";
+    private static int REQUEST_GET_IMAGE_FROM_PHONE = 2;
     private ImageView mImageView;
     private Button mEmojifyButton;
     private FloatingActionButton mShareFab;
     private FloatingActionButton mSaveFab;
     private FloatingActionButton mClearFab;
-
     private TextView mTitleTextView;
-
     private String mTempPhotoPath;
-
     private Bitmap mResultsBitmap;
-
-
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final int REQUEST_STORAGE_PERMISSION = 1;
-
-    private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.fileprovider";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +52,26 @@ public class Emojify extends AppCompatActivity {
         mSaveFab = (FloatingActionButton) findViewById(R.id.save_button);
         mClearFab = (FloatingActionButton) findViewById(R.id.clear_button);
         mTitleTextView = (TextView) findViewById(R.id.title_text_view);
-
         mEmojifyButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                emojifyMe(view);
+            public void onClick(final View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Emojify.this);
+                builder.setTitle("Choose Option")
+                        .setItems(new String[]{"Camera", "Gallery"}, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if (i == 0) {
+                                    emojifyMe(view);
+                                } else {
+                                    Intent intent = new Intent(
+                                            Intent.ACTION_PICK,
+                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                    startActivityForResult(intent, REQUEST_GET_IMAGE_FROM_PHONE);
+                                }
+
+                            }
+                        }).create().show();
+
             }
         });
         mShareFab.setOnClickListener(new View.OnClickListener() {
@@ -82,8 +95,8 @@ public class Emojify extends AppCompatActivity {
         });
 
 
-
     }
+
     public void emojifyMe(View view) {
         // Check for the external storage permission
         if (ContextCompat.checkSelfPermission(this,
@@ -141,12 +154,23 @@ public class Emojify extends AppCompatActivity {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             // Process the image and set it to the TextView
             processAndSetImage();
+        } else if (requestCode == REQUEST_GET_IMAGE_FROM_PHONE && resultCode == Activity.RESULT_OK && null != data && data.getData() != null) {
+            Uri filePath = data.getData();
+
+            try {
+                mResultsBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                processAndSetImage();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         } else {
 
             // Otherwise, delete the temporary image file
             BitmapUtils.deleteImageFile(this, mTempPhotoPath);
         }
     }
+
     private void processAndSetImage() {
 
         // Toggle Visibility of the views
@@ -157,7 +181,9 @@ public class Emojify extends AppCompatActivity {
         mClearFab.setVisibility(View.VISIBLE);
 
         // Resample the saved image to fit the ImageView
-        mResultsBitmap = BitmapUtils.resamplePic(this, mTempPhotoPath);
+        if (mTempPhotoPath != null) {
+            mResultsBitmap = BitmapUtils.resamplePic(this, mTempPhotoPath);
+        }
 
 
         // Detect the faces and overlay the appropriate emoji
@@ -166,6 +192,7 @@ public class Emojify extends AppCompatActivity {
         // Set the new bitmap to the ImageView
         mImageView.setImageBitmap(mResultsBitmap);
     }
+
     public void saveMe(View view) {
         // Delete the temporary image file
         BitmapUtils.deleteImageFile(this, mTempPhotoPath);
@@ -207,7 +234,6 @@ public class Emojify extends AppCompatActivity {
         // Delete the temporary image file
         BitmapUtils.deleteImageFile(this, mTempPhotoPath);
     }
-
 
 
 }
