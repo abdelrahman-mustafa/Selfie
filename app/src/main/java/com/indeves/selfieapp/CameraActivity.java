@@ -29,7 +29,7 @@ import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
-
+import com.google.android.gms.vision.face.Landmark;
 
 
 import java.io.ByteArrayOutputStream;
@@ -150,7 +150,7 @@ public class CameraActivity extends AppCompatActivity {
             mCameraSource = new CameraSource.Builder(context, detector)
                     .setRequestedPreviewSize(640, 480)
                     .setFacing(CameraSource.CAMERA_FACING_FRONT)
-                    .setRequestedFps(10.f)
+                    .setRequestedFps(30.f)
                     .build();
 
     }
@@ -297,6 +297,7 @@ public class CameraActivity extends AppCompatActivity {
         public void onUpdate(FaceDetector.Detections<Face> detectionResults, Face face) {
             mOverlay.add(mFaceGraphic);
             mFaceGraphic.updateFace(face);
+
         }
 
 
@@ -312,10 +313,7 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
 
-    }
 
 
 

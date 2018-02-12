@@ -10,7 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.example.toto.testapp_advancedapp.R;
+
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 
@@ -90,7 +90,7 @@ public class Emojifier {
     }
 
 
-    private static Emoji getEmoji(Face face) {
+    public static Emoji getEmoji(Face face) {
         Log.d("smile", String.valueOf(face.getIsSmilingProbability()));
 
         Log.d("rightEye", String.valueOf(face.getIsRightEyeOpenProbability()));

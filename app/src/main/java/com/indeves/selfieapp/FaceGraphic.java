@@ -1,15 +1,18 @@
 package com.indeves.selfieapp;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
+
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 
-import com.example.toto.testapp_advancedapp.R;
+
 import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.Landmark;
 
 class FaceGraphic extends GraphicOverlay.Graphic {
     private static final float FACE_POSITION_RADIUS = 10.0f;
@@ -21,22 +24,26 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     private static final int COLOR_CHOICES[] = {
             Color.YELLOW
     };
+
+    private static final double SMILING_PROB_THRESHOLD = .15;
+    private static final double EYE_OPEN_PROB_THRESHOLD = .5;
+
     private static int mCurrentColorIndex = 0;
     private static final float EMOJI_SCALE_FACTOR = .9f;
-    private Context context;
 
     private Paint mFacePositionPaint;
     private Paint mIdPaint;
     private Paint mBoxPaint;
 
-    Context mContext;
+    Context context;
     private volatile Face mFace;
+
     private int mFaceId;
     private float mFaceHappiness;
 
-    FaceGraphic(GraphicOverlay overlay,Context context) {
-        super(overlay,context);
-        this.mContext = context;
+    FaceGraphic(GraphicOverlay overlay, Context context) {
+        super(overlay, context);
+        this.context = context;
         mCurrentColorIndex = (mCurrentColorIndex + 1) % COLOR_CHOICES.length;
         final int selectedColor = COLOR_CHOICES[mCurrentColorIndex];
 
@@ -53,7 +60,6 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         mBoxPaint.setStrokeWidth(BOX_STROKE_WIDTH);
 
     }
-
 
 
     void setId(int id) {
@@ -81,40 +87,133 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         }
         float scaleFactor = EMOJI_SCALE_FACTOR;
 
-        emojiBitmap = BitmapFactory.decodeResource(mContext.getResources(),
-                R.drawable.hat);
+
+        // Scale the emoji
+
+
+        Bitmap emojiBitmap;
+
+        // Log the classification probabilities for each face.
+
+        switch (getEmoji(face)) {
+            case SMILE:
+                emojiBitmap = BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.smile);
+                break;
+            case FROWN:
+                emojiBitmap = BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.frown);
+                break;
+            case LEFT_WINK:
+                emojiBitmap = BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.leftwink);
+                break;
+            case RIGHT_WINK:
+                emojiBitmap = BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.rightwink);
+                break;
+            case LEFT_WINK_FROWN:
+                emojiBitmap = BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.leftwinkfrown);
+                break;
+            case RIGHT_WINK_FROWN:
+                emojiBitmap = BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.rightwinkfrown);
+                break;
+            case CLOSED_EYE_SMILE:
+                emojiBitmap = BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.closed_smile);
+                break;
+            case CLOSED_EYE_FROWN:
+                emojiBitmap = BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.closed_frown);
+                break;
+            default:
+                emojiBitmap = null;
+        }
         int newEmojiWidth = (int) (face.getWidth() * scaleFactor);
         int newEmojiHeight = (int) (emojiBitmap.getHeight() *
                 newEmojiWidth / emojiBitmap.getWidth() * scaleFactor);
+        emojiBitmap = Bitmap.createScaledBitmap(emojiBitmap, newEmojiWidth, newEmojiHeight, false);
 
         float emojiPositionX =
                 (face.getPosition().x + face.getWidth() / 2) - emojiBitmap.getWidth() / 2;
         float emojiPositionY =
                 (face.getPosition().y + face.getHeight() / 2) - emojiBitmap.getHeight() / 3;
 
-        // Scale the emoji
-        emojiBitmap = Bitmap.createScaledBitmap(emojiBitmap, newEmojiWidth, newEmojiHeight, false);
-
-
         // Draws a circle at the position of the detected face, with the face's track id below.
         float x = translateX(face.getPosition().x + face.getWidth() / 2);
         float y = translateY(face.getPosition().y + face.getHeight() / 2);
-    /*    canvas.drawCircle(x, y, FACE_POSITION_RADIUS, mFacePositionPaint);
-        canvas.drawText("id: " + mFaceId, x + ID_X_OFFSET, y + ID_Y_OFFSET, mIdPaint);
+        //canvas.drawCircle(x, y, FACE_POSITION_RADIUS, mFacePositionPaint);
+
+    /*    canvas.drawText("id: " + mFaceId, x + ID_X_OFFSET, y + ID_Y_OFFSET, mIdPaint);
         canvas.drawText("happiness: " + String.format("%.2f", face.getIsSmilingProbability()), x - ID_X_OFFSET, y - ID_Y_OFFSET, mIdPaint);
         canvas.drawText("right eye: " + String.format("%.2f", face.getIsRightEyeOpenProbability()), x + ID_X_OFFSET * 2, y + ID_Y_OFFSET * 2, mIdPaint);
         canvas.drawText("left eye: " + String.format("%.2f", face.getIsLeftEyeOpenProbability()), x - ID_X_OFFSET*2, y - ID_Y_OFFSET*2, mIdPaint);
-*/        // Draws a bounding box around the face.
-        float xOffset = scaleX(face.getWidth()/2 );
-        float yOffset = scaleY(face.getHeight()/2 );
+     */   //Draws a boundi
+
+
+        float xOffset = scaleX(face.getWidth() / 2);
+        float yOffset = scaleY(face.getHeight() / 2);
         float left = x - xOffset;
-        float top = y -  yOffset;
+        float top = y - yOffset;
         float right = x + xOffset;
         float bottom = y + yOffset;
 
-        canvas.drawBitmap(emojiBitmap, x, y, null);
-        canvas.drawRect(left, top, right, bottom,mBoxPaint );
+
+        canvas.drawBitmap(emojiBitmap, emojiPositionX, emojiPositionY, null);
+        canvas.drawRect(left, top, right, bottom, mBoxPaint);
 
     }
+
+    public static Emoji getEmoji(Face face) {
+        Log.d("smile", String.valueOf(face.getIsSmilingProbability()));
+
+        Log.d("rightEye", String.valueOf(face.getIsRightEyeOpenProbability()));
+
+        Log.d("leftEye", String.valueOf(face.getIsLeftEyeOpenProbability()));
+
+        Boolean smile = face.getIsSmilingProbability() > SMILING_PROB_THRESHOLD;
+        Boolean leftEye = face.getIsLeftEyeOpenProbability() < EYE_OPEN_PROB_THRESHOLD;
+        Boolean rightEye = face.getIsRightEyeOpenProbability() < EYE_OPEN_PROB_THRESHOLD;
+
+        Emoji emoji;
+        if (smile) {
+            if (leftEye && !rightEye) {
+                emoji = Emoji.LEFT_WINK;
+            } else if (rightEye && !leftEye) {
+                emoji = Emoji.RIGHT_WINK;
+            } else if (leftEye) {
+                emoji = Emoji.CLOSED_EYE_SMILE;
+            } else {
+                emoji = Emoji.SMILE;
+            }
+        } else {
+            if (leftEye && !rightEye) {
+                emoji = Emoji.LEFT_WINK_FROWN;
+            } else if (rightEye && !leftEye) {
+                emoji = Emoji.RIGHT_WINK_FROWN;
+            } else if (leftEye) {
+                emoji = Emoji.CLOSED_EYE_FROWN;
+            } else {
+                emoji = Emoji.FROWN;
+            }
+        }
+
+
+        return emoji;
+    }
+
+    private enum Emoji {
+        SMILE,
+        FROWN,
+        LEFT_WINK,
+        RIGHT_WINK,
+        LEFT_WINK_FROWN,
+        RIGHT_WINK_FROWN,
+        CLOSED_EYE_SMILE,
+        CLOSED_EYE_FROWN
+    }
+
 }
 
