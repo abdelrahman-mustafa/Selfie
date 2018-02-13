@@ -51,15 +51,19 @@
 
         </com.indeves.selfieapp.CameraSourcePreview>
 
-        <Button
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rec"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <!--<Button
             android:id="@+id/capture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="20dp"
             android:background="@drawable/capture_btn"
             android:gravity="bottom" />
-
+-->
 
     </FrameLayout>
 

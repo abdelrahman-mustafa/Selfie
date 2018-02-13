@@ -8,11 +8,18 @@ import android.graphics.Color;
 
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.widget.Switch;
+import android.widget.Toast;
 
 
+import com.estimote.coresdk.repackaged.retrofit_v1_9_0.retrofit.RestAdapter;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.Landmark;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class FaceGraphic extends GraphicOverlay.Graphic {
     private static final float FACE_POSITION_RADIUS = 10.0f;
@@ -34,16 +41,22 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     private Paint mFacePositionPaint;
     private Paint mIdPaint;
     private Paint mBoxPaint;
+    Bitmap buttonBitmap;
+
 
     Context context;
     private volatile Face mFace;
 
     private int mFaceId;
+    int i;
     private float mFaceHappiness;
+    List<CameraButtons> list = new ArrayList<>();
 
-    FaceGraphic(GraphicOverlay overlay, Context context) {
+    FaceGraphic(GraphicOverlay overlay, Context context, int i,List<CameraButtons> list) {
         super(overlay, context);
         this.context = context;
+        this.i = i;
+        this.list = list;
         mCurrentColorIndex = (mCurrentColorIndex + 1) % COLOR_CHOICES.length;
         final int selectedColor = COLOR_CHOICES[mCurrentColorIndex];
 
@@ -71,9 +84,10 @@ class FaceGraphic extends GraphicOverlay.Graphic {
      * Updates the face instance from the detection of the most recent frame.  Invalidates the
      * relevant portions of the overlay to trigger a redraw.
      */
-    void updateFace(Face face) {
+    void updateFace(Face face,int i) {
         mFace = face;
         postInvalidate();
+        this.i = i ;
     }
 
     /**
@@ -85,11 +99,8 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         if (face == null) {
             return;
         }
+
         float scaleFactor = EMOJI_SCALE_FACTOR;
-
-
-        // Scale the emoji
-
 
         Bitmap emojiBitmap;
 
@@ -141,6 +152,14 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         float emojiPositionY =
                 (face.getPosition().y + face.getHeight() / 2) - emojiBitmap.getHeight() / 3;
 
+        Log.d("id", String.valueOf(i));
+
+
+
+
+        // Scale the emoji
+
+
         // Draws a circle at the position of the detected face, with the face's track id below.
         float x = translateX(face.getPosition().x + face.getWidth() / 2);
         float y = translateY(face.getPosition().y + face.getHeight() / 2);
@@ -161,7 +180,19 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         float bottom = y + yOffset;
 
 
-        canvas.drawBitmap(emojiBitmap, emojiPositionX, emojiPositionY, null);
+
+        if (i != 0) {
+            buttonBitmap = getBit(i);
+            Log.d("button", "detected ---1");
+            buttonBitmap = Bitmap.createScaledBitmap(buttonBitmap, newEmojiWidth, newEmojiHeight, false);
+            canvas.drawBitmap(buttonBitmap, (left+right)/2, top, null);
+
+        } else {
+            canvas.drawBitmap(emojiBitmap, emojiPositionX, emojiPositionY, null);
+
+        }
+
+
         canvas.drawRect(left, top, right, bottom, mBoxPaint);
 
     }
@@ -213,6 +244,42 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         RIGHT_WINK_FROWN,
         CLOSED_EYE_SMILE,
         CLOSED_EYE_FROWN
+    }
+
+
+    private Bitmap getBit (int id){
+        Bitmap bitmap = null;
+        CameraButtons cameraButtons = new CameraButtons();
+        cameraButtons = list.get(id);
+        switch (id){
+            case 0:
+                bitmap = BitmapFactory.decodeResource(context.getResources(),
+                        cameraButtons.getImagePath());
+                break;
+            case 1:
+                bitmap = BitmapFactory.decodeResource(context.getResources(),
+                        cameraButtons.getImagePath());
+                break;
+            case 2:
+                bitmap = BitmapFactory.decodeResource(context.getResources(),
+                        cameraButtons.getImagePath());
+                break;
+            case 3:
+                bitmap = BitmapFactory.decodeResource(context.getResources(),
+                        cameraButtons.getImagePath());
+                break;
+            case 4:
+                bitmap = BitmapFactory.decodeResource(context.getResources(),
+                        cameraButtons.getImagePath());
+                break;
+            case 5:
+                break;
+            case 6:
+                bitmap = BitmapFactory.decodeResource(context.getResources(),
+                        cameraButtons.getImagePath());
+                break;
+        }
+        return bitmap;
     }
 
 }
