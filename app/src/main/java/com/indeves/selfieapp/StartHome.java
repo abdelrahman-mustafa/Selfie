@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.provider.MediaStore;
 import android.content.pm.PackageManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -20,7 +21,7 @@ import com.estimote.coresdk.common.requirements.SystemRequirementsChecker;
 public class StartHome extends AppCompatActivity {
 
     private static final int RC_HANDLE_CAMERA_PERM = 2;
-    Button track, emojify;
+    Button track, emojify, pickForPhone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,13 @@ public class StartHome extends AppCompatActivity {
             public void onClick(View view) {
                 startActivity(new Intent(StartHome.this, Emojify.class));
 
+            }
+        });
+        pickForPhone = findViewById(R.id.homeScreen_pickFromPhone_button);
+        pickForPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(StartHome.this, PickFromGalleryActivity.class));
             }
         });
     }

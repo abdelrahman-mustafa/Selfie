@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.indeves.selfieapp">
 
-
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,16 +14,18 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-feature android:name="android.hardware.sensor.compass"
-        android:required="true" />
-    <uses-feature android:name="android.hardware.camera"/>
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-feature
+        android:name="android.hardware.sensor.compass"
+        android:required="true" />
+    <uses-feature android:name="android.hardware.camera" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- The ACCESS_COARSE/FINE_LOCATION permissions are not required to use Google Maps Android API v2, but you must specify either coarse or fine location permissions for the 'MyLocation' functionality. -->
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <supports-screens
         android:largeScreens="true"
         android:normalScreens="true"
@@ -49,9 +50,8 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name="com.indeves.selfieapp.Emojify" />
-        <activity android:name="com.indeves.selfieapp.CameraActivity" />
-
+        <activity android:name=".Emojify" />
+        <activity android:name=".CameraActivity" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -62,14 +62,14 @@
              You can define the keys for the debug and release targets in src/debug/ and src/release/. 
         -->
 
-
-        <activity android:name="com.indeves.selfieapp.StartHome">
+        <activity android:name=".StartHome">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".PickFromGalleryActivity"></activity>
     </application>
 
 </manifest>
