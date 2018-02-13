@@ -3,6 +3,7 @@ package com.indeves.selfieapp;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,7 +16,7 @@ import com.estimote.coresdk.common.requirements.SystemRequirementsChecker;
 public class StartHome extends AppCompatActivity {
 
     private static final int RC_HANDLE_CAMERA_PERM = 2;
-    Button track, emojify;
+    Button track, emojify, pickForPhone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,13 @@ public class StartHome extends AppCompatActivity {
             public void onClick(View view) {
                 startActivity(new Intent(StartHome.this, Emojify.class));
 
+            }
+        });
+        pickForPhone = findViewById(R.id.homeScreen_pickFromPhone_button);
+        pickForPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(StartHome.this, PickFromGalleryActivity.class));
             }
         });
     }

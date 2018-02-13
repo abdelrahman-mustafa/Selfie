@@ -31,7 +31,7 @@ public class Emojify extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_STORAGE_PERMISSION = 1;
     private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.fileprovider";
-    private static int REQUEST_GET_IMAGE_FROM_PHONE = 2;
+
     private ImageView mImageView;
     private Button mEmojifyButton;
     private FloatingActionButton mShareFab;
@@ -54,24 +54,8 @@ public class Emojify extends AppCompatActivity {
         mTitleTextView = (TextView) findViewById(R.id.title_text_view);
         mEmojifyButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(final View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(Emojify.this);
-                builder.setTitle("Choose Option")
-                        .setItems(new String[]{"Camera", "Gallery"}, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                if (i == 0) {
-                                    emojifyMe(view);
-                                } else {
-                                    Intent intent = new Intent(
-                                            Intent.ACTION_PICK,
-                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                    startActivityForResult(intent, REQUEST_GET_IMAGE_FROM_PHONE);
-                                }
-
-                            }
-                        }).create().show();
-
+            public void onClick(View view) {
+                emojifyMe(view);
             }
         });
         mShareFab.setOnClickListener(new View.OnClickListener() {
@@ -154,18 +138,7 @@ public class Emojify extends AppCompatActivity {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             // Process the image and set it to the TextView
             processAndSetImage();
-        } else if (requestCode == REQUEST_GET_IMAGE_FROM_PHONE && resultCode == Activity.RESULT_OK && null != data && data.getData() != null) {
-            Uri filePath = data.getData();
-
-            try {
-                mResultsBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                processAndSetImage();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
         } else {
-
             // Otherwise, delete the temporary image file
             BitmapUtils.deleteImageFile(this, mTempPhotoPath);
         }
