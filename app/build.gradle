@@ -31,5 +31,8 @@ dependencies {
     compile 'com.android.support:support-v4:27.0.2'
     compile 'com.android.support:multidex:1.0.2'
     compile 'com.andrognito.pinlockview:pinlockview:2.1.0'
-    implementation 'com.estimote:sdk:1.4.1'
+    compile 'com.github.zomato:androidphotofilters:1.0.1'
 }
+
+
+

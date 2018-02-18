@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Selfie.iml" filepath="$PROJECT_DIR$/Selfie.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/photofilterssdk/photofilterssdk.iml" filepath="$PROJECT_DIR$/photofilterssdk/photofilterssdk.iml" />
     </modules>
   </component>
 </project>
