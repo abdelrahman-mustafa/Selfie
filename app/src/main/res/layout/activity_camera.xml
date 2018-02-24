@@ -6,27 +6,6 @@
     android:orientation="vertical">
 
 
-    <TextView
-        android:id="@+id/view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="12dp"
-        android:text="Start Tracking your face "
-        android:textSize="17sp" />
-
-    <FrameLayout
-        android:id="@+id/linear3"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/view"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center"
-        android:layout_marginTop="5dp"
-        android:orientation="vertical">
 
 
         <com.indeves.selfieapp.CameraSourcePreview
@@ -51,17 +30,29 @@
 
         </com.indeves.selfieapp.CameraSourcePreview>
 
-        <Button
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rec"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <!--<Button
             android:id="@+id/capture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="20dp"
             android:background="@drawable/capture_btn"
             android:gravity="bottom" />
 
+-->
+        <ImageButton
+            android:id="@+id/flipButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:src="@drawable/track" />
 
-    </FrameLayout>
 
 
 </RelativeLayout>

@@ -10,7 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.indeves.selfieapp.R;
+
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 
@@ -90,7 +90,7 @@ public class Emojifier {
     }
 
 
-    private static Emoji getEmoji(Face face) {
+    public static Emoji getEmoji(Face face) {
         Log.d("smile", String.valueOf(face.getIsSmilingProbability()));
 
         Log.d("rightEye", String.valueOf(face.getIsRightEyeOpenProbability()));
@@ -128,6 +128,17 @@ public class Emojifier {
         return emoji;
     }
 
+    private enum Emoji {
+        SMILE,
+        FROWN,
+        LEFT_WINK,
+        RIGHT_WINK,
+        LEFT_WINK_FROWN,
+        RIGHT_WINK_FROWN,
+        CLOSED_EYE_SMILE,
+        CLOSED_EYE_FROWN
+    }
+
     private static Bitmap addBitmapToFace(Bitmap backgroundBitmap, Bitmap emojiBitmap, Face face) {
 
         // Initialize the results bitmap to be a mutable copy of the original image
@@ -157,17 +168,6 @@ public class Emojifier {
         canvas.drawBitmap(backgroundBitmap, 0, 0, null);
         canvas.drawBitmap(emojiBitmap, emojiPositionX, emojiPositionY, null);
         return resultBitmap;
-    }
-
-    private enum Emoji {
-        SMILE,
-        FROWN,
-        LEFT_WINK,
-        RIGHT_WINK,
-        LEFT_WINK_FROWN,
-        RIGHT_WINK_FROWN,
-        CLOSED_EYE_SMILE,
-        CLOSED_EYE_FROWN
     }
 
 
