@@ -1,79 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
     android:orientation="horizontal"
     tools:context="com.indeves.selfieapp.StartHome">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
+        android:padding="20dp"
+        android:src="@drawable/home_screen_slogan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="20dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:padding="20dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:background="@drawable/hello"/>
-        <Button
-            android:id="@+id/home_button_emojify"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="10dp"
-            android:text="Emojify My Face"/>
-    </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/emojify_layout"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:background="@color/colorPrimaryDark"
+            android:translationZ="5dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="30dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical">
+            <ImageView
+                android:id="@+id/icon1"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:src="@drawable/emojify_me_icon" />
 
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:background="@drawable/track"/>
-        <Button
-            android:id="@+id/home_button_camera_track"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="10dp"
-            android:text="Track my Face"/>
-    </LinearLayout>
+            <Button
+                android:id="@+id/home_button_emojify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/icon1"
+                android:layout_centerHorizontal="true"
+                android:background="@android:color/transparent"
+                android:text="Emojify My Face"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white" />
+        </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="30dp"
-        android:layout_weight="1"
-        android:gravity="end"
-        android:orientation="vertical">
+        <RelativeLayout
+            android:id="@+id/track_face_layout"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@+id/emojify_layout"
+            android:background="@color/colorPrimaryDark"
+            android:translationZ="5dp">
 
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:background="@drawable/track" />
+            <ImageView
+                android:id="@+id/icon2"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:src="@drawable/track_my_face" />
 
-        <Button
-            android:id="@+id/homeScreen_pickFromPhone_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="10dp"
-            android:text="@string/btn_pick_from_phone"
-            android:textAllCaps="false" />
-    </LinearLayout>
-</LinearLayout>
+            <Button
+                android:id="@+id/home_button_camera_track"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/icon2"
+                android:layout_centerHorizontal="true"
+                android:background="@android:color/transparent"
+                android:text="Track my Face"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/pick_from_gallery_layout"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_below="@+id/emojify_layout"
+            android:layout_marginTop="20dp"
+            android:background="@color/colorPrimaryDark"
+            android:translationZ="5dp">
+
+            <ImageView
+                android:id="@+id/icon3"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/pick_from_gallery" />
+
+            <Button
+                android:id="@+id/homeScreen_pickFromPhone_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/icon3"
+                android:layout_centerHorizontal="true"
+                android:background="@android:color/transparent"
+                android:text="@string/btn_pick_from_phone"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white" />
+        </RelativeLayout>
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>

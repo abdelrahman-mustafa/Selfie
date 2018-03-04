@@ -33,12 +33,12 @@
         android:xlargeScreens="true" />
 
     <application
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:largeHeap="true"
-        android:hardwareAccelerated="false"
         android:theme="@style/AppTheme">
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -63,14 +63,24 @@
              You can define the keys for the debug and release targets in src/debug/ and src/release/. 
         -->
 
-        <activity android:name=".StartHome">
+        <activity
+            android:name=".StartHome"
+            android:theme="@style/AppThemeWithoutBar">
+
+        </activity>
+        <activity android:name=".PickFromGalleryActivity" />
+        <activity
+            android:name=".SplashActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_splash"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeWithoutBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PickFromGalleryActivity"></activity>
     </application>
 
 </manifest>

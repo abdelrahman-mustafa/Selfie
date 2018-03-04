@@ -10,47 +10,37 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 
-
-public class StartHome extends AppCompatActivity {
+public class StartHome extends AppCompatActivity implements View.OnClickListener {
 
     private static final int RC_HANDLE_CAMERA_PERM = 2;
     Button track, emojify, pickForPhone;
+    RelativeLayout emojifyMe, trackMyFace, pickFromGallery;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_home);
         int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
-        if (rc == PackageManager.PERMISSION_GRANTED) {
-
-        } else {
+        if (rc != PackageManager.PERMISSION_GRANTED) {
             requestCameraPermission();
         }
-
         track = findViewById(R.id.home_button_camera_track);
         emojify = findViewById(R.id.home_button_emojify);
-        track.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(StartHome.this, CameraActivity.class));
-            }
-        });
-        emojify.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(StartHome.this, Emojify.class));
-
-            }
-        });
+        track.setOnClickListener(this);
+        emojify.setOnClickListener(this);
         pickForPhone = findViewById(R.id.homeScreen_pickFromPhone_button);
-        pickForPhone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(StartHome.this, EffectActivity.class));
-            }
-        });
+        pickForPhone.setOnClickListener(this);
+        emojifyMe = findViewById(R.id.emojify_layout);
+        emojifyMe.setOnClickListener(this);
+        trackMyFace = findViewById(R.id.track_face_layout);
+        trackMyFace.setOnClickListener(this);
+        pickFromGallery = findViewById(R.id.pick_from_gallery_layout);
+        pickFromGallery.setOnClickListener(this);
+
     }
 
     @Override
@@ -58,6 +48,7 @@ public class StartHome extends AppCompatActivity {
         super.onStart();
         requestCameraPermission();
     }
+
     private void requestCameraPermission() {
 
 
@@ -104,4 +95,18 @@ public class StartHome extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onClick(View v) {
+        if (v == emojify || v == emojifyMe) {
+            startActivity(new Intent(StartHome.this, Emojify.class));
+
+        } else if (v == track || v == trackMyFace) {
+            startActivity(new Intent(StartHome.this, CameraActivity.class));
+
+        } else if (v == pickForPhone || v == pickFromGallery) {
+            startActivity(new Intent(StartHome.this, EffectActivity.class));
+
+        }
+
+    }
 }

@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.zomato.photofilters.SampleFilters;
@@ -23,16 +24,19 @@ import java.io.InputStream;
 import java.util.List;
 
 public class EffectActivity extends AppCompatActivity implements ThumbnailCallback {
+    private static int RESULT_LOAD_IMAGE = 1;
+
     static {
         System.loadLibrary("NativeImageProcessor");
     }
 
-    private Activity activity;
-    private static int RESULT_LOAD_IMAGE = 1;
-    private RecyclerView thumbListView;
-    private ImageView placeHolderImageView, select;
     Bitmap selectImage;
     Bitmap image;
+    RelativeLayout thumbnailsContainer;
+    private Activity activity;
+    private RecyclerView thumbListView;
+    private ImageView placeHolderImageView, select;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,19 +47,22 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
         initUIWidgets();
     }
 
-    //initialize recyclerView containig the edits
+    //initialize recyclerView containing the edits
     private void initUIWidgets() {
         select = (ImageView) findViewById(R.id.place_holder_select);
         thumbListView = (RecyclerView) findViewById(R.id.thumbnails);
         placeHolderImageView = (ImageView) findViewById(R.id.place_holder_imageview);
-        select.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                select.setVisibility(View.GONE);
-                getImage();
-
-            }
-        });
+        thumbnailsContainer = findViewById(R.id.thumbnails_container);
+        thumbnailsContainer.setVisibility(View.GONE);
+//        select.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                select.setVisibility(View.GONE);
+//
+//
+//            }
+//        });
+        getImage();
         // get the original the image from gallary after that
         // placeHolderImageView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getApplicationContext().getResources(), R.drawable.photo), 640, 640, false));
         // deploy the selected image overt the recyclerView items
@@ -138,6 +145,7 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
 
         if (resultCode == RESULT_OK) {
             try {
+                thumbnailsContainer.setVisibility(View.VISIBLE);
                 final Uri imageUri = data.getData();
                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 selectImage = BitmapFactory.decodeStream(imageStream);

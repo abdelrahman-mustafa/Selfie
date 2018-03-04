@@ -1,20 +1,19 @@
-<RelativeLayout android:id="@+id/r"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/thumb_background_color"
-                tools:context=".EffectActivity">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/r"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/thumb_background_color"
+    tools:context=".EffectActivity">
 
 
     <ImageView
         android:id="@+id/place_holder_imageview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:background="@color/placeholder_background"
-        android:scaleType="fitStart"
-        />
+        android:scaleType="fitStart" />
 
     <ImageView
         android:id="@+id/place_holder_select"
@@ -25,13 +24,14 @@
         android:layout_marginTop="116dp"
         android:background="@color/placeholder_background"
         android:scaleType="fitStart"
-        android:src="@drawable/selector" />
+        android:src="@drawable/selector"
+        android:visibility="gone" />
 
     <RelativeLayout
+        android:id="@+id/thumbnails_container"
         android:layout_width="match_parent"
         android:layout_height="@dimen/recycler_size"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
         android:background="@color/thumb_background_color">
 
         <android.support.v7.widget.RecyclerView
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/thumbnail_vertical_padding"
             android:layout_marginTop="@dimen/thumbnail_vertical_padding"
-            android:clipToPadding="false"/>
+            android:clipToPadding="false" />
 
     </RelativeLayout>
 
