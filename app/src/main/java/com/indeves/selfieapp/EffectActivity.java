@@ -5,15 +5,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zomato.photofilters.SampleFilters;
@@ -23,7 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 
-public class EffectActivity extends AppCompatActivity implements ThumbnailCallback {
+public class EffectActivity extends AppCompatActivity implements ThumbnailCallback, View.OnClickListener {
     private static int RESULT_LOAD_IMAGE = 1;
 
     static {
@@ -33,35 +40,72 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
     Bitmap selectImage;
     Bitmap image;
     RelativeLayout thumbnailsContainer;
+    RelativeLayout.LayoutParams layoutParams;
     private Activity activity;
     private RecyclerView thumbListView;
-    private ImageView placeHolderImageView, select;
+    private ImageView placeHolderImageView, clipPic, addEffect, writeOnPic, addButh, addFrame, rePickImage;
+    private TextView actionBarTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ActionBar actionBar = getSupportActionBar();
+        actionBarTitle = new TextView(getApplicationContext());
+        layoutParams = new RelativeLayout.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT);
+        actionBarTitle.setLayoutParams(layoutParams);
+        actionBarTitle.setText(getResources().getString(R.string.app_name));
+        actionBarTitle.setTextColor(Color.BLACK);
+        actionBarTitle.setGravity(Gravity.CENTER);
+        actionBarTitle.setTextSize(25);
+
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(actionBarTitle);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         activity = this;
 
 
         initUIWidgets();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.effect_activity_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.effect_activity_next) {
+            Toast.makeText(EffectActivity.this, "Next is clicked", Toast.LENGTH_SHORT).show();
+
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
     //initialize recyclerView containing the edits
     private void initUIWidgets() {
-        select = (ImageView) findViewById(R.id.place_holder_select);
         thumbListView = (RecyclerView) findViewById(R.id.thumbnails);
         placeHolderImageView = (ImageView) findViewById(R.id.place_holder_imageview);
         thumbnailsContainer = findViewById(R.id.thumbnails_container);
         thumbnailsContainer.setVisibility(View.GONE);
-//        select.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                select.setVisibility(View.GONE);
-//
-//
-//            }
-//        });
+        clipPic = findViewById(R.id.effect_activity_clipPic_imageView);
+        clipPic.setOnClickListener(this);
+        addEffect = findViewById(R.id.effect_activity_addEffect_imageView);
+        addEffect.setOnClickListener(this);
+        writeOnPic = findViewById(R.id.effect_activity_writeOnPic_imageView);
+        writeOnPic.setOnClickListener(this);
+        addButh = findViewById(R.id.effect_activity_addButh_imageView);
+        addButh.setOnClickListener(this);
+        addFrame = findViewById(R.id.effect_activity_addFrame_imageView);
+        addFrame.setOnClickListener(this);
+        rePickImage = findViewById(R.id.effect_activity_repickImage_imageView);
+        rePickImage.setOnClickListener(this);
         getImage();
         // get the original the image from gallary after that
         // placeHolderImageView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getApplicationContext().getResources(), R.drawable.photo), 640, 640, false));
@@ -145,14 +189,11 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
 
         if (resultCode == RESULT_OK) {
             try {
-                thumbnailsContainer.setVisibility(View.VISIBLE);
                 final Uri imageUri = data.getData();
                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 selectImage = BitmapFactory.decodeStream(imageStream);
                 placeHolderImageView.setImageBitmap(Bitmap.createScaledBitmap(selectImage, 640, 640, false));
                 initHorizontalList();
-
-
 
 
             } catch (FileNotFoundException e) {
@@ -163,5 +204,54 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
         } else {
             Toast.makeText(EffectActivity.this, "You haven't picked Image", Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == clipPic) {
+            clipPic.setImageResource(R.drawable.clip_pic_clicked);
+            addEffect.setImageResource(R.drawable.add_effect_unclicked);
+            addButh.setImageResource(R.drawable.add_buth_unclicked);
+            writeOnPic.setImageResource(R.drawable.write_on_pic_unclicked);
+            addFrame.setImageResource(R.drawable.add_frame_unclicked);
+            thumbnailsContainer.setVisibility(View.GONE);
+
+
+        } else if (v == addEffect) {
+            thumbnailsContainer.setVisibility(View.VISIBLE);
+            clipPic.setImageResource(R.drawable.clip_pic_unclicked);
+            addEffect.setImageResource(R.drawable.add_effect_clicked);
+            addButh.setImageResource(R.drawable.add_buth_unclicked);
+            writeOnPic.setImageResource(R.drawable.write_on_pic_unclicked);
+            addFrame.setImageResource(R.drawable.add_frame_unclicked);
+
+        } else if (v == addButh) {
+            clipPic.setImageResource(R.drawable.clip_pic_unclicked);
+            addEffect.setImageResource(R.drawable.add_effect_unclicked);
+            addButh.setImageResource(R.drawable.add_buth_active);
+            writeOnPic.setImageResource(R.drawable.write_on_pic_unclicked);
+            addFrame.setImageResource(R.drawable.add_frame_unclicked);
+            thumbnailsContainer.setVisibility(View.GONE);
+
+        } else if (v == addFrame) {
+            clipPic.setImageResource(R.drawable.clip_pic_unclicked);
+            addEffect.setImageResource(R.drawable.add_effect_unclicked);
+            addButh.setImageResource(R.drawable.add_buth_unclicked);
+            writeOnPic.setImageResource(R.drawable.write_on_pic_unclicked);
+            addFrame.setImageResource(R.drawable.add_frame_clicked);
+            thumbnailsContainer.setVisibility(View.GONE);
+
+        } else if (v == writeOnPic) {
+            clipPic.setImageResource(R.drawable.clip_pic_unclicked);
+            addEffect.setImageResource(R.drawable.add_effect_unclicked);
+            addButh.setImageResource(R.drawable.add_buth_unclicked);
+            writeOnPic.setImageResource(R.drawable.write_on_pic_clicked);
+            addFrame.setImageResource(R.drawable.add_frame_unclicked);
+            thumbnailsContainer.setVisibility(View.GONE);
+
+        } else if (v == rePickImage) {
+            getImage();
+        }
+
     }
 }

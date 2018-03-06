@@ -52,7 +52,10 @@
 
         <activity android:name=".Emojify" />
         <activity android:name=".CameraActivity" />
-        <activity android:name=".EffectActivity" />
+        <activity
+            android:name=".EffectActivity"
+            android:parentActivityName=".StartHome"
+            android:theme="@style/AppTheme" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
