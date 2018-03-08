@@ -1,6 +1,7 @@
 package com.indeves.selfieapp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,9 +16,12 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -56,7 +60,7 @@ public class CameraActivity extends AppCompatActivity {
     private CameraSource mCameraSource = null;
     ImageID imageID = new ImageID();
     private FaceData mFaceData = new FaceData();
-    Button capture;
+    ImageButton capture;
     private Map<Integer, PointF> mPreviousLandmarkPositions = new HashMap<>();
 
     // As with facial landmarks, we keep track of the eye’s previous open/closed states
@@ -95,6 +99,8 @@ public class CameraActivity extends AppCompatActivity {
     CameraAdaptor cameraAdaptor;
     protected LayoutManagerType mCurrentLayoutManagerType;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @SuppressLint("ResourceAsColor")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +111,11 @@ public class CameraActivity extends AppCompatActivity {
         GraphicOverlay.setContext(getApplicationContext());
 
         recyclerView = findViewById(R.id.rec);
+        recyclerView.setBackground(getDrawable(R.drawable.white));
+        Drawable background = recyclerView.getBackground();
+        background.setAlpha(80);
+
+
 
         final ImageButton button = (ImageButton) findViewById(R.id.flipButton);
         button.setOnClickListener(mSwitchCameraButtonListener);
@@ -121,7 +132,6 @@ public class CameraActivity extends AppCompatActivity {
         } else {
             requestCameraPermission();
         }
-/*
         capture = findViewById(R.id.capture);
         capture.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -130,24 +140,24 @@ public class CameraActivity extends AppCompatActivity {
                 imageID.setId(1);
 
 
-             *//*   mCameraSource.takePicture(null, new CameraSource.PictureCallback() {
+                mCameraSource.takePicture(null, new CameraSource.PictureCallback() {
 
                     @Override
                     public void onPictureTaken(byte[] bytes) {
 
                         Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        image = getResizedBitmap(image, 150, 150);
+                        image = getResizedBitmap(image, 600, 600);
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                         byte[] imageBytes = baos.toByteArray();
 
                     }
-                });*//*
+                });
 
 
             }
-        }); // take image function together with later main processing part.*/
-        cameraAdaptor = new CameraAdaptor(addImage());
+        }); // take image function together with later main processing part.
+        cameraAdaptor = new CameraAdaptor(addImage(),CameraActivity.this);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(CameraActivity.this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(horizontalLayoutManager);
         recyclerView.setAdapter(cameraAdaptor);

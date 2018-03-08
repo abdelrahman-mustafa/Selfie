@@ -1,58 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:id="@+id/view0"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#FFFF"
+        android:orientation="horizontal"
+        android:padding="6dp">
 
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="35dp"
+            android:src="@drawable/icon7"
+            android:background="#ffff"
+            android:layout_height="25dp"
+            android:layout_gravity="left|center_vertical"
+            android:layout_weight=".1"
+            android:paddingLeft="10dp" />
 
-
-        <com.indeves.selfieapp.CameraSourcePreview
-            android:id="@+id/preview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_gravity="center|bottom"
-            android:layout_marginLeft="0dp"
-            android:layout_weight="1"
-            android:background="#000000"
-            android:visibility="visible">
-
-
-            <com.indeves.selfieapp.GraphicOverlay
-                android:id="@+id/faceOverlay"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_below="@+id/view"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="7dp" />
-
-
-        </com.indeves.selfieapp.CameraSourcePreview>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rec"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="bottom|center_horizontal"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <!--<Button
-            android:id="@+id/capture"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/capture_btn"
-            android:gravity="bottom" />
+            android:layout_gravity="center_vertical"
+            android:layout_weight=".9"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:gravity="center|center_vertical"
+            android:text="Selfie "
+            android:textSize="25sp" />
 
--->
         <ImageButton
             android:id="@+id/flipButton"
             android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_height="36dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:src="@drawable/track" />
+            android:src="@drawable/icon6" />
 
+    </LinearLayout>
+
+
+    <com.indeves.selfieapp.CameraSourcePreview
+        android:id="@+id/preview"
+        android:layout_above="@id/view8"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/view0"
+        android:layout_gravity="center|bottom"
+        android:layout_marginLeft="0dp"
+        android:layout_weight="1"
+        android:background="#000000"
+        android:visibility="visible">
+
+
+        <com.indeves.selfieapp.GraphicOverlay
+            android:id="@+id/faceOverlay"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/view"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="7dp" />
+
+
+    </com.indeves.selfieapp.CameraSourcePreview>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rec"
+        android:layout_above="@id/view8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal" />
+    <ImageView
+        android:layout_width="70dp"
+        android:layout_above="@id/view8"
+        android:layout_height="30dp"
+        android:layout_marginRight="20dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/home_screen_slogan"
+        android:layout_gravity="bottom|right" />
+    <!--<Button
+        android:id="@+id/capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/capture_btn"
+        android:gravity="bottom" />
+
+-->
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:orientation="horizontal"
+        android:id="@+id/view8"
+        android:background="#393535"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:background="#393535"
+            android:layout_gravity="bottom|center_horizontal"
+            android:gravity="bottom" />
+
+
+
+        <ImageButton
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:id="@+id/capture"
+            android:background="#393535"
+            android:layout_gravity="center|center_horizontal"
+            android:src="@drawable/ring_button"
+            android:gravity="center" />
+
+        <ImageButton
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:background="#393535"
+            android:src="@drawable/icon11"
+            android:layout_gravity="bottom|center_horizontal"
+            android:gravity="bottom" />
+    </LinearLayout>
 
 
 </RelativeLayout>
