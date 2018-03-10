@@ -100,7 +100,7 @@ public class PickFromGalleryActivity extends AppCompatActivity {
         mClearFab.setVisibility(View.VISIBLE);
 
         // Detect the faces and overlay the appropriate emoji
-        mResultsBitmap = Emojifier.detecFaces(this, mResultsBitmap);
+        mResultsBitmap = Emojifier.detecFaces(this, mResultsBitmap,0,null);
 
         // Set the new bitmap to the ImageView
         mImageView.setImageBitmap(mResultsBitmap);

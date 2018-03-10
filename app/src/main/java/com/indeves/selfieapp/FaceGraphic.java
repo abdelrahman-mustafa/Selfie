@@ -31,6 +31,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     private static final float ID_X_OFFSET = -50.0f;
     private static final float BOX_STROKE_WIDTH = 5.0f;
     Bitmap emojiBitmap;
+    public static Canvas canvasSelected;
     private static final int COLOR_CHOICES[] = {
             Color.YELLOW
     };
@@ -61,7 +62,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
 
     Context context;
     private volatile Face mFace;
-
+    Canvas canvasSel;
     private int mFaceId;
     int i;
     private float mFaceHappiness;
@@ -326,7 +327,12 @@ class FaceGraphic extends GraphicOverlay.Graphic {
 
 
 //        canvas.drawRect(left, top, right, bottom, mBoxPaint);
+        canvasSel = canvas;
 
+    }
+
+    public Canvas getCanvasSel() {
+        return canvasSel;
     }
 
     public static Emoji getEmoji(Face face) {

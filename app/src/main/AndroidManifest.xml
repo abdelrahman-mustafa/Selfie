@@ -33,10 +33,9 @@
         android:xlargeScreens="true" />
 
     <application
+        android:allowBackup="true"
         android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
-
-        android:allowBackup="true"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -72,9 +71,7 @@
 
         <activity
             android:name=".StartHome"
-            android:theme="@style/AppThemeWithoutBar">
-
-        </activity>
+            android:theme="@style/AppThemeWithoutBar"></activity>
         <activity android:name=".PickFromGalleryActivity" />
         <activity
             android:name=".SplashActivity"
@@ -88,6 +85,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ShareActivity"></activity>
     </application>
 
 </manifest>

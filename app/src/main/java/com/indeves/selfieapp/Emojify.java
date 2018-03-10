@@ -144,7 +144,7 @@ public class Emojify extends AppCompatActivity {
         }
     }
 
-    private void processAndSetImage() {
+    public void processAndSetImage() {
 
         // Toggle Visibility of the views
         mEmojifyButton.setVisibility(View.GONE);
@@ -160,7 +160,7 @@ public class Emojify extends AppCompatActivity {
 
 
         // Detect the faces and overlay the appropriate emoji
-        mResultsBitmap = Emojifier.detecFaces(this, mResultsBitmap);
+        mResultsBitmap = Emojifier.detecFaces(this, mResultsBitmap,0,null);
 
         // Set the new bitmap to the ImageView
         mImageView.setImageBitmap(mResultsBitmap);

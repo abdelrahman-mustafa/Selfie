@@ -35,6 +35,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 
 import com.google.android.gms.common.ConnectionResult;
@@ -60,6 +61,7 @@ public class CameraActivity extends AppCompatActivity {
     private CameraSource mCameraSource = null;
     ImageID imageID = new ImageID();
     private FaceData mFaceData = new FaceData();
+    ImageView imageView;
     ImageButton capture;
     private Map<Integer, PointF> mPreviousLandmarkPositions = new HashMap<>();
 
@@ -76,6 +78,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private static final int RC_HANDLE_CAMERA_PERM = 2;
     private boolean mIsFrontFacing = true;
+    FaceGraphic mFaceGraphic;
 
     String photo = "";
     int i = 0;
@@ -109,12 +112,13 @@ public class CameraActivity extends AppCompatActivity {
         mPreview = findViewById(R.id.preview);
         mGraphicOverlay = findViewById(R.id.faceOverlay);
         GraphicOverlay.setContext(getApplicationContext());
+        imageView = findViewById(R.id.image);
+        imageView.setVisibility(View.GONE);
 
         recyclerView = findViewById(R.id.rec);
         recyclerView.setBackground(getDrawable(R.drawable.white));
         Drawable background = recyclerView.getBackground();
         background.setAlpha(80);
-
 
 
         final ImageButton button = (ImageButton) findViewById(R.id.flipButton);
@@ -137,19 +141,25 @@ public class CameraActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("button", "detected");
 
-                imageID.setId(1);
-
-
                 mCameraSource.takePicture(null, new CameraSource.PictureCallback() {
 
                     @Override
                     public void onPictureTaken(byte[] bytes) {
+                        mCameraSource.release();
 
                         Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        image = getResizedBitmap(image, 600, 600);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                        byte[] imageBytes = baos.toByteArray();
+                        image = Emojifier.detecFaces(CameraActivity.this,image,i+1,mFaceData);
+                        mPreview.setVisibility(View.GONE);
+                        Matrix matrix = new Matrix();
+                        float[] mirrorY = {-1, 0, 0, 0, 1, 0, 0, 0, 1};
+                        Matrix matrixMirrorY = new Matrix();
+                        matrixMirrorY.setValues(mirrorY);
+                        matrix.postConcat(matrixMirrorY);
+                        image = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(),
+                                matrix, true);
+                        imageView.setImageBitmap(image);
+                        imageView.setVisibility(View.VISIBLE);
+
 
                     }
                 });
@@ -157,7 +167,7 @@ public class CameraActivity extends AppCompatActivity {
 
             }
         }); // take image function together with later main processing part.
-        cameraAdaptor = new CameraAdaptor(addImage(),CameraActivity.this);
+        cameraAdaptor = new CameraAdaptor(addImage(), CameraActivity.this);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(CameraActivity.this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(horizontalLayoutManager);
         recyclerView.setAdapter(cameraAdaptor);
@@ -165,7 +175,7 @@ public class CameraActivity extends AppCompatActivity {
                 new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-
+                        i = position;
                         imageID.setId(position);
                     }
                 })
@@ -374,14 +384,6 @@ public class CameraActivity extends AppCompatActivity {
         mPreview.stop();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mCameraSource != null) {
-            mCameraSource.release();
-        }
-    }
-
 
     // Build Camera source which connect face detector with camera preview
     private void startCameraSource() {
@@ -437,7 +439,7 @@ public class CameraActivity extends AppCompatActivity {
      */
     private class GraphicFaceTracker extends Tracker<Face> {
         private GraphicOverlay mOverlay;
-        private FaceGraphic mFaceGraphic;
+        //private FaceGraphic mFaceGraphic;
         Context mContext = CameraActivity.this;
 
         GraphicFaceTracker(GraphicOverlay overlay, Context context) {
@@ -580,7 +582,6 @@ public class CameraActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.scrollToPosition(scrollPosition);
     }
-
 
 
 }

@@ -145,6 +145,7 @@ public class GraphicOverlay extends View {
         postInvalidate();
     }
 
+   public static Canvas selectedCanvas;
     /**
      * Draws the overlay with its associated graphic objects.
      */
@@ -160,8 +161,12 @@ public class GraphicOverlay extends View {
 
             for (Graphic graphic : mGraphics) {
                 graphic.draw(canvas);
+                selectedCanvas = canvas;
 
             }
         }
+    }
+    public static Canvas getSelectedCanvas(){
+        return  selectedCanvas;
     }
 }

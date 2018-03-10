@@ -45,6 +45,7 @@
     </LinearLayout>
 
 
+
     <com.indeves.selfieapp.CameraSourcePreview
         android:id="@+id/preview"
         android:layout_above="@id/view8"
@@ -68,6 +69,16 @@
 
 
     </com.indeves.selfieapp.CameraSourcePreview>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:id="@+id/image"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="20dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/home_screen_slogan" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rec"
