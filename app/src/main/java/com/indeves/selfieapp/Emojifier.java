@@ -228,12 +228,12 @@ public class Emojifier {
         // Create the canvas and draw the bitmaps to it
         Canvas canvas = new Canvas(resultBitmap);
         canvas.drawBitmap(backgroundBitmap, 0, 0, null);
+
         if (id >= 0 && id < 4) {
 
             float eulerY = faceDat.getEulerY();
             float eulerZ = faceDat.getEulerZ();
             //A.M- Match the selected item with the face
-
 
 
             //A.M - draw the selected item over the face

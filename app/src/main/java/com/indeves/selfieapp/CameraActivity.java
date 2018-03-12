@@ -145,8 +145,12 @@ public class CameraActivity extends AppCompatActivity {
 
                     @Override
                     public void onPictureTaken(byte[] bytes) {
-                        mCameraSource.release();
 
+
+
+                        mPreview.setDrawingCacheEnabled(true);
+                        Bitmap overlay = mPreview.getDrawingCache();
+                        mCameraSource.release();
                         Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                         image = Emojifier.detecFaces(CameraActivity.this,image,i+1,mFaceData);
                         mPreview.setVisibility(View.GONE);
