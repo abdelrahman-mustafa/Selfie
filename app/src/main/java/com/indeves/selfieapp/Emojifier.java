@@ -93,41 +93,43 @@ public class Emojifier {
                     default:
                         emojiBitmap = null;
                 }
-                resultBitmap = addBitmapToFace(resultBitmap, emojiBitmap, face,faceData);
+                resultBitmap = addBitmapToFace(resultBitmap, emojiBitmap, face, faceData);
             } else {
                 Bitmap bitmap1;
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 2;
                 switch (h) {
                     case 1:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.frown);
+                                R.drawable.frown, options);
                         break;
                     case 2:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.borneta);
+                                R.drawable.borneta, options);
                         break;
                     case 3:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.tartor);
+                                R.drawable.tartor, options);
                         break;
                     case 4:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.oaaal);
+                                R.drawable.oaaal, options);
                         break;
                     case 5:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.shanb2);
+                                R.drawable.shanb2, options);
                         break;
                     case 6:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.shanb);
+                                R.drawable.shanb, options);
                         break;
                     case 7:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.fionka);
+                                R.drawable.fionka, options);
                         break;
                     case 8:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.tarposh);
+                                R.drawable.tarposh, options);
                         break;
                     default:
                         bitmap1 = null;
@@ -180,22 +182,11 @@ public class Emojifier {
         return emoji;
     }
 
-    private enum Emoji {
-        SMILE,
-        FROWN,
-        LEFT_WINK,
-        RIGHT_WINK,
-        LEFT_WINK_FROWN,
-        RIGHT_WINK_FROWN,
-        CLOSED_EYE_SMILE,
-        CLOSED_EYE_FROWN
-    }
-
     public static Bitmap addBitmapToFace(Bitmap backgroundBitmap, Bitmap emojiBitmap, Face face, FaceData faceDat) {
 
         int left = 0;
         int right;
-        int top =0;
+        int top = 0;
         int bottom;
         if (faceDat != null) {
   /*          left = (int) faceDat.getLeftEarTipPosition().x;
@@ -203,7 +194,8 @@ public class Emojifier {
             top = (int) face.getHeight();
             bottom = (int) Math.min(faceDat.getLeftEyePosition().y, faceDat.getRightEyePosition().y);
 
-   */     }
+   */
+        }
         // Initialize the results bitmap to be a mutable copy of the original image
         Bitmap resultBitmap = Bitmap.createBitmap(backgroundBitmap.getWidth(),
                 backgroundBitmap.getHeight(), backgroundBitmap.getConfig());
@@ -245,6 +237,17 @@ public class Emojifier {
         }
 
         return resultBitmap;
+    }
+
+    private enum Emoji {
+        SMILE,
+        FROWN,
+        LEFT_WINK,
+        RIGHT_WINK,
+        LEFT_WINK_FROWN,
+        RIGHT_WINK_FROWN,
+        CLOSED_EYE_SMILE,
+        CLOSED_EYE_FROWN
     }
 
 

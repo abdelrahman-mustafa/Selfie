@@ -17,6 +17,7 @@ import java.util.Set;
 
 
 public class GraphicOverlay extends View {
+    public static Canvas selectedCanvas;
     private final Object mLock = new Object();
     private int mPreviewWidth;
     private float mWidthScaleFactor = 1.0f;
@@ -24,13 +25,85 @@ public class GraphicOverlay extends View {
     private float mHeightScaleFactor = 1.0f;
     private int mFacing = CameraSource.CAMERA_FACING_BACK;
     private Set<Graphic> mGraphics = new HashSet<>();
+    private Context context;
 
-    private static Context context;
+    public GraphicOverlay(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
-    public static void setContext(Context mcontext) {
+    public static Canvas getSelectedCanvas() {
+        return selectedCanvas;
+    }
+
+    public void setContext(Context mcontext) {
         if (context == null)
             context = mcontext;
     }
+
+    /**
+     * Removes all graphics from the overlay.
+     */
+    public void clear() {
+        synchronized (mLock) {
+            mGraphics.clear();
+        }
+        postInvalidate();
+    }
+
+    /**
+     * Adds a graphic to the overlay.
+     */
+    public void add(Graphic graphic) {
+        synchronized (mLock) {
+            mGraphics.add(graphic);
+        }
+        postInvalidate();
+    }
+
+    /**
+     * Removes a graphic from the overlay.
+     */
+    public void remove(Graphic graphic) {
+        synchronized (mLock) {
+            mGraphics.remove(graphic);
+        }
+        postInvalidate();
+    }
+
+    /**
+     * Sets the camera attributes for size and facing direction, which informs how to transform
+     * image coordinates later.
+     */
+    public void setCameraInfo(int previewWidth, int previewHeight, int facing) {
+        synchronized (mLock) {
+            mPreviewWidth = previewWidth;
+            mPreviewHeight = previewHeight;
+            mFacing = facing;
+        }
+        postInvalidate();
+    }
+
+    /**
+     * Draws the overlay with its associated graphic objects.
+     */
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        synchronized (mLock) {
+            if ((mPreviewWidth != 0) && (mPreviewHeight != 0)) {
+                mWidthScaleFactor = (float) canvas.getWidth() / (float) mPreviewWidth;
+                mHeightScaleFactor = (float) canvas.getHeight() / (float) mPreviewHeight;
+            }
+
+            for (Graphic graphic : mGraphics) {
+                graphic.draw(canvas);
+                selectedCanvas = canvas;
+
+            }
+        }
+    }
+
     /**
      * Base class for a custom graphics object to be rendered within the graphic overlay.  Subclass
      * this and implement the {@link Graphic#draw(Canvas)} method to define the
@@ -39,9 +112,8 @@ public class GraphicOverlay extends View {
     public static abstract class Graphic {
         private GraphicOverlay mOverlay;
 
-        public Graphic(GraphicOverlay overlay,Context mcontext) {
+        public Graphic(GraphicOverlay overlay) {
             mOverlay = overlay;
-            mcontext = context;
         }
 
         /**
@@ -96,77 +168,5 @@ public class GraphicOverlay extends View {
         public void postInvalidate() {
             mOverlay.postInvalidate();
         }
-    }
-
-    public GraphicOverlay(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    /**
-     * Removes all graphics from the overlay.
-     */
-    public void clear() {
-        synchronized (mLock) {
-            mGraphics.clear();
-        }
-        postInvalidate();
-    }
-
-    /**
-     * Adds a graphic to the overlay.
-     */
-    public void add(Graphic graphic) {
-        synchronized (mLock) {
-            mGraphics.add(graphic);
-        }
-        postInvalidate();
-    }
-
-    /**
-     * Removes a graphic from the overlay.
-     */
-    public void remove(Graphic graphic) {
-        synchronized (mLock) {
-            mGraphics.remove(graphic);
-        }
-        postInvalidate();
-    }
-
-    /**
-     * Sets the camera attributes for size and facing direction, which informs how to transform
-     * image coordinates later.
-     */
-    public void setCameraInfo(int previewWidth, int previewHeight, int facing) {
-        synchronized (mLock) {
-            mPreviewWidth = previewWidth;
-            mPreviewHeight = previewHeight;
-            mFacing = facing;
-        }
-        postInvalidate();
-    }
-
-   public static Canvas selectedCanvas;
-    /**
-     * Draws the overlay with its associated graphic objects.
-     */
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        synchronized (mLock) {
-            if ((mPreviewWidth != 0) && (mPreviewHeight != 0)) {
-                mWidthScaleFactor = (float) canvas.getWidth() / (float) mPreviewWidth;
-                mHeightScaleFactor = (float) canvas.getHeight() / (float) mPreviewHeight;
-            }
-
-            for (Graphic graphic : mGraphics) {
-                graphic.draw(canvas);
-                selectedCanvas = canvas;
-
-            }
-        }
-    }
-    public static Canvas getSelectedCanvas(){
-        return  selectedCanvas;
     }
 }
