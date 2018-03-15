@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/view0"
@@ -48,17 +50,16 @@
         android:id="@+id/preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/view8"
-        android:layout_below="@id/view0"
-        android:layout_gravity="center|bottom"
+        android:layout_above="@+id/view8"
+        android:layout_below="@+id/view0"
         android:background="#000000"
         android:visibility="visible">
 
 
         <com.indeves.selfieapp.GraphicOverlay
             android:id="@+id/faceOverlay"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </com.indeves.selfieapp.CameraSourcePreview>
 
@@ -86,6 +87,7 @@
         android:layout_alignParentRight="true"
         android:layout_gravity="bottom|right"
         android:layout_marginRight="20dp"
+
         android:src="@drawable/home_screen_slogan" />
     <!--<Button
         android:id="@+id/capture"

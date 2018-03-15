@@ -70,7 +70,7 @@
 
         <activity
             android:name=".StartHome"
-            android:theme="@style/AppThemeWithoutBar"></activity>
+            android:theme="@style/AppThemeWithoutBar" />
         <activity android:name=".PickFromGalleryActivity" />
         <activity
             android:name=".SplashActivity"

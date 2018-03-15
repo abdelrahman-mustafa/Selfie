@@ -41,7 +41,6 @@ import android.widget.ImageView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.CameraSource;
-import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.face.Face;
@@ -58,10 +57,9 @@ import java.util.Map;
 
 
 public class CameraActivity extends AppCompatActivity {
-    private static final String TAG = "FaceTracker";
+    private static final String TAG = "CamiraActivity";
     private static final int RC_HANDLE_GMS = 9001;
     private static final int RC_HANDLE_CAMERA_PERM = 2;
-    //    FaceDetector detector;
     private static final String KEY_LAYOUT_MANAGER = "layoutManager";
     private static final int SPAN_COUNT = 2;
     public static List<CameraButtons> listOfImages = new ArrayList<>();
@@ -75,8 +73,8 @@ public class CameraActivity extends AppCompatActivity {
     // permission request codes need to be < 256
     String photo = "";
     int i = 0;
-    //    private FaceGraphic faceGraphic;
     RecyclerView recyclerView;
+    FaceDetector detector;
     CameraAdaptor cameraAdaptor;
     private CameraSource mCameraSource = null;
     private FaceData mFaceData = new FaceData();
@@ -89,6 +87,7 @@ public class CameraActivity extends AppCompatActivity {
     private GraphicOverlay mGraphicOverlay;
     private Context context = CameraActivity.this;
     private boolean mIsFrontFacing = true;
+    private FaceGraphic faceGraphic;
     private View.OnClickListener mSwitchCameraButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
             mIsFrontFacing = !mIsFrontFacing;
@@ -112,7 +111,7 @@ public class CameraActivity extends AppCompatActivity {
 
         mPreview = findViewById(R.id.preview);
         mGraphicOverlay = findViewById(R.id.faceOverlay);
-//        GraphicOverlay.setContext(getApplicationContext());
+        GraphicOverlay.setContext(getApplicationContext());
         imageView = findViewById(R.id.image);
         imageView.setVisibility(View.GONE);
 
@@ -148,12 +147,10 @@ public class CameraActivity extends AppCompatActivity {
                     public void onPictureTaken(byte[] bytes) {
 
 
-//                        mPreview.setDrawingCacheEnabled(true);
-//                        Bitmap overlay = mPreview.getDrawingCache();
+                        mPreview.setDrawingCacheEnabled(true);
+                        Bitmap overlay = mPreview.getDrawingCache();
                         mCameraSource.release();
                         Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        int height = image.getHeight();
-                        int width = image.getWidth();
                         image = Emojifier.detecFaces(CameraActivity.this,image,i+1,mFaceData);
                         mPreview.setVisibility(View.GONE);
                         Matrix matrix = new Matrix();
@@ -161,7 +158,7 @@ public class CameraActivity extends AppCompatActivity {
                         Matrix matrixMirrorY = new Matrix();
                         matrixMirrorY.setValues(mirrorY);
                         matrix.postConcat(matrixMirrorY);
-                        image = Bitmap.createBitmap(image, 0, 0, width, height,
+                        image = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(),
                                 matrix, true);
                         imageView.setImageBitmap(image);
                         imageView.setVisibility(View.VISIBLE);
@@ -173,7 +170,7 @@ public class CameraActivity extends AppCompatActivity {
 
             }
         }); // take image function together with later main processing part.
-        cameraAdaptor = new CameraAdaptor(getListOfImages(), CameraActivity.this);
+        cameraAdaptor = new CameraAdaptor(addImage(), CameraActivity.this);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(CameraActivity.this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(horizontalLayoutManager);
         recyclerView.setAdapter(cameraAdaptor);
@@ -250,7 +247,7 @@ public class CameraActivity extends AppCompatActivity {
                 .show();
     }
 
-    public List<CameraButtons> getListOfImages() {
+    public List<CameraButtons> addImage() {
         List<CameraButtons> list = new ArrayList<CameraButtons>();
         CameraButtons cameraButtons = new CameraButtons();
         cameraButtons.setImagePath(R.drawable.frown);
@@ -283,10 +280,9 @@ public class CameraActivity extends AppCompatActivity {
     private void createCameraSource() {
         imageID.setId(0);
 
-//        createDetection();
+        createDetection();
 // open the camera front ot back
 
-        FaceDetector detector = createFaceDetector(context);
 
         int facing = CameraSource.CAMERA_FACING_FRONT;
         if (!mIsFrontFacing) {
@@ -302,31 +298,20 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
-    @NonNull
-    private FaceDetector createFaceDetector(final Context context) {
-        // 1
-        FaceDetector detector = new FaceDetector.Builder(context)
+    private void createDetection() {
+        Context context = getApplicationContext();
+        detector = new FaceDetector.Builder(context)
                 .setLandmarkType(FaceDetector.ALL_LANDMARKS)
                 .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
                 .setTrackingEnabled(true)
-                .setMode(FaceDetector.FAST_MODE)
                 .setProminentFaceOnly(mIsFrontFacing)
                 .setMinFaceSize(mIsFrontFacing ? 0.35f : 0.15f)
                 .build();
 
-        // 2
-        MultiProcessor.Factory<Face> factory = new MultiProcessor.Factory<Face>() {
-            @Override
-            public Tracker<Face> create(Face face) {
-                return new FaceTracker(mGraphicOverlay, context, mIsFrontFacing);
-            }
-        };
+        detector.setProcessor(
+                new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory())
+                        .build());
 
-        // 3
-        Detector.Processor<Face> processor = new MultiProcessor.Builder<>(factory).build();
-        detector.setProcessor(processor);
-
-        // 4
         if (!detector.isOperational()) {
             Log.w(TAG, "Face detector dependencies are not yet available.");
 
@@ -350,47 +335,20 @@ public class CameraActivity extends AppCompatActivity {
                         .show();
             }
         }
-        return detector;
     }
 
-//    private void createDetection() {
-//        Context context = getApplicationContext();
-//        detector = new FaceDetector.Builder(context)
-//                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
-//                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
-//                .setTrackingEnabled(true)
-//                .setProminentFaceOnly(mIsFrontFacing)
-//                .setMinFaceSize(mIsFrontFacing ? 0.35f : 0.15f)
-//                .build();
-//
-//        detector.setProcessor(
-//                new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory())
-//                        .build());
-//
-//        if (!detector.isOperational()) {
-//            Log.w(TAG, "Face detector dependencies are not yet available.");
-//
-//            // Check the device's storage.  If there's little available storage, the native
-//            // face detection library will not be downloaded, and the app won't work,
-//            // so notify the user.
-//            IntentFilter lowStorageFilter = new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW);
-//            boolean hasLowStorage = registerReceiver(null, lowStorageFilter) != null;
-//
-//            if (hasLowStorage) {
-//                Log.w(TAG, getString(R.string.low_storage_error));
-//                DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int id) {
-//                        finish();
-//                    }
-//                };
-//                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//                builder.setTitle(R.string.app_name)
-//                        .setMessage(R.string.low_storage_error)
-//                        .setPositiveButton(R.string.disappointed_ok, listener)
-//                        .show();
-//            }
-//        }
-//    }
+    public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height,
+                matrix, false);
+
+        return resizedBitmap;
+    }
 
     /**
      * Restarts the camera.
@@ -401,19 +359,6 @@ public class CameraActivity extends AppCompatActivity {
 
         startCameraSource();
     }
-
-//    public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
-//        int width = bm.getWidth();
-//        int height = bm.getHeight();
-//        float scaleWidth = ((float) newWidth) / width;
-//        float scaleHeight = ((float) newHeight) / height;
-//        Matrix matrix = new Matrix();
-//        matrix.postScale(scaleWidth, scaleHeight);
-//        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height,
-//                matrix, false);
-//
-//        return resizedBitmap;
-//    }
 
     /**
      * Stops the camera.
@@ -447,186 +392,184 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
+    public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {
+        int scrollPosition = 0;
+
+        // If a layout manager has already been set, get current scroll position.
+        if (recyclerView.getLayoutManager() != null) {
+            scrollPosition = ((LinearLayoutManager) recyclerView.getLayoutManager())
+                    .findFirstCompletelyVisibleItemPosition();
+        }
+
+        switch (layoutManagerType) {
+            case GRID_LAYOUT_MANAGER:
+                mLayoutManager = new GridLayoutManager(getBaseContext(), SPAN_COUNT);
+                mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
+                break;
+            case LINEAR_LAYOUT_MANAGER:
+                mLayoutManager = new LinearLayoutManager(getBaseContext());
+                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+                break;
+            default:
+                mLayoutManager = new LinearLayoutManager(getBaseContext());
+                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+        }
+
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.scrollToPosition(scrollPosition);
+    }
+
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
         LINEAR_LAYOUT_MANAGER
     }
 
+    private class GraphicFaceTrackerFactory implements MultiProcessor.Factory<Face> {
 
-//    private class GraphicFaceTrackerFactory implements MultiProcessor.Factory<Face> {
-//
-//        // take action just detect any face
-//
-//        @Override
-//        public Tracker<Face> create(Face face) {
-///*
-//            final CameraSource.PictureCallback callbackPicture = new CameraSource.PictureCallback() {
-//                public void onPictureTaken(byte[] data) {
-//                    x = data;
-//                    Toast.makeText(getApplicationContext(), "Face detected", Toast.LENGTH_LONG).show();
-//                    mCameraSource.stop();
-//
-//                }
-//            };
-//            mCameraSource.takePicture(null, callbackPicture);*/
-//
-//
-//            return new GraphicFaceTracker(mGraphicOverlay, context);
-//
-//        }
-//    }
-//
-//
-//    /**
-//     * Face tracker for each detected individual. This maintains a face graphic within the app's
-//     * associated face overlay.
-//     */
-//    private class GraphicFaceTracker extends Tracker<Face> {
-//        private GraphicOverlay mOverlay;
-//        //private FaceGraphic mFaceGraphic;
-//        Context mContext = CameraActivity.this;
-//
-//        GraphicFaceTracker(GraphicOverlay overlay, Context context) {
-//            this.mContext = context;
-//            Log.isLoggable("Hi", imageID.getId());
-//            mOverlay = overlay;
-//            mFaceGraphic = new FaceGraphic(overlay, context, imageID.getId(), addImage());
-//
-//        }
-//
-//
-//        // Start tracking the detected face instance within the face overlay.
-//        @Override
-//        public void onNewItem(int faceId, Face item) {
-//            mFaceGraphic = new FaceGraphic(mOverlay, mContext, mIsFrontFacing, addImage());
-//            mFaceGraphic.setId(faceId);
-//        }
-//
-//
-//        //Update the position/characteristics of the face within the overlay.
-//        //Take action on face detected
-//
-//        @Override
-//        public void onUpdate(FaceDetector.Detections<Face> detectionResults, Face face) {
-//            mOverlay.add(mFaceGraphic);
-//
-//            updatePreviousLandmarkPositions(face);
-//
-//            // Get face dimensions.
-//            mFaceData.setPosition(face.getPosition());
-//            mFaceData.setWidth(face.getWidth());
-//            mFaceData.setHeight(face.getHeight());
-//
-//            // Get head angles.
-//            mFaceData.setEulerY(face.getEulerY());
-//            mFaceData.setEulerZ(face.getEulerZ());
-//
-//            // Get the positions of facial landmarks.
-//            mFaceData.setLeftEyePosition(getLandmarkPosition(face, Landmark.LEFT_EYE));
-//            mFaceData.setRightEyePosition(getLandmarkPosition(face, Landmark.RIGHT_EYE));
-//            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.LEFT_CHEEK));
-//            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.RIGHT_CHEEK));
-//            mFaceData.setNoseBasePosition(getLandmarkPosition(face, Landmark.NOSE_BASE));
-//            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.LEFT_EAR));
-//            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.LEFT_EAR_TIP));
-//            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.RIGHT_EAR));
-//            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.RIGHT_EAR_TIP));
-//            mFaceData.setMouthLeftPosition(getLandmarkPosition(face, Landmark.LEFT_MOUTH));
-//            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.BOTTOM_MOUTH));
-//            mFaceData.setMouthRightPosition(getLandmarkPosition(face, Landmark.RIGHT_MOUTH));
-//
-//            // Determine if eyes are open.
-//            final float EYE_CLOSED_THRESHOLD = 0.4f;
-//            float leftOpenScore = face.getIsLeftEyeOpenProbability();
-//            if (leftOpenScore == Face.UNCOMPUTED_PROBABILITY) {
-//                mFaceData.setLeftEyeOpen(mPreviousIsLeftEyeOpen);
-//            } else {
-//                mFaceData.setLeftEyeOpen(leftOpenScore > EYE_CLOSED_THRESHOLD);
-//                mPreviousIsLeftEyeOpen = mFaceData.isLeftEyeOpen();
-//            }
-//            float rightOpenScore = face.getIsRightEyeOpenProbability();
-//            if (rightOpenScore == Face.UNCOMPUTED_PROBABILITY) {
-//                mFaceData.setRightEyeOpen(mPreviousIsRightEyeOpen);
-//            } else {
-//                mFaceData.setRightEyeOpen(rightOpenScore > EYE_CLOSED_THRESHOLD);
-//                mPreviousIsRightEyeOpen = mFaceData.isRightEyeOpen();
-//            }
-//
-//            // See if there's a smile!
-//            // Determine if person is smiling.
-//            final float SMILING_THRESHOLD = 0.8f;
-//            mFaceData.setSmiling(face.getIsSmilingProbability() > SMILING_THRESHOLD);
-//            mFaceGraphic.update(mFaceData);
-//            mFaceGraphic.updateFace(face, imageID.getId());
-//
-//        }
-//
-//        private PointF getLandmarkPosition(Face face, int landmarkId) {
-//            for (Landmark landmark : face.getLandmarks()) {
-//                if (landmark.getType() == landmarkId) {
-//                    return landmark.getPosition();
-//                }
-//            }
-//
-//            PointF landmarkPosition = mPreviousLandmarkPositions.get(landmarkId);
-//            if (landmarkPosition == null) {
-//                return null;
-//            }
-//
-//            float x = face.getPosition().x + (landmarkPosition.x * face.getWidth());
-//            float y = face.getPosition().y + (landmarkPosition.y * face.getHeight());
-//            return new PointF(x, y);
-//        }
-//
-//        private void updatePreviousLandmarkPositions(Face face) {
-//            for (Landmark landmark : face.getLandmarks()) {
-//                PointF position = landmark.getPosition();
-//                float xProp = (position.x - face.getPosition().x) / face.getWidth();
-//                float yProp = (position.y - face.getPosition().y) / face.getHeight();
-//                mPreviousLandmarkPositions.put(landmark.getType(), new PointF(xProp, yProp));
-//            }
-//        }
-//
-//
-//        @Override
-//        public void onMissing(FaceDetector.Detections<Face> detectionResults) {
-//            mOverlay.remove(mFaceGraphic);
-//        }
-//
-//
-//        @Override
-//        public void onDone() {
-//            mOverlay.remove(mFaceGraphic);
-//        }
-//    }
+        // take action just detect any face
 
-//    public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {
-//        int scrollPosition = 0;
-//
-//        // If a layout manager has already been set, get current scroll position.
-//        if (recyclerView.getLayoutManager() != null) {
-//            scrollPosition = ((LinearLayoutManager) recyclerView.getLayoutManager())
-//                    .findFirstCompletelyVisibleItemPosition();
-//        }
-//
-//        switch (layoutManagerType) {
-//            case GRID_LAYOUT_MANAGER:
-//                mLayoutManager = new GridLayoutManager(getBaseContext(), SPAN_COUNT);
-//                mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
-//                break;
-//            case LINEAR_LAYOUT_MANAGER:
-//                mLayoutManager = new LinearLayoutManager(getBaseContext());
-//                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
-//                break;
-//            default:
-//                mLayoutManager = new LinearLayoutManager(getBaseContext());
-//                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
-//        }
-//
-//        recyclerView.setLayoutManager(mLayoutManager);
-//        recyclerView.scrollToPosition(scrollPosition);
-//    }
+        @Override
+        public Tracker<Face> create(Face face) {
+/*
+            final CameraSource.PictureCallback callbackPicture = new CameraSource.PictureCallback() {
+                public void onPictureTaken(byte[] data) {
+                    x = data;
+                    Toast.makeText(getApplicationContext(), "Face detected", Toast.LENGTH_LONG).show();
+                    mCameraSource.stop();
+
+                }
+            };
+            mCameraSource.takePicture(null, callbackPicture);*/
+
+
+            return new GraphicFaceTracker(mGraphicOverlay, context);
+
+        }
+    }
+
+    /**
+     * Face tracker for each detected individual. This maintains a face graphic within the app's
+     * associated face overlay.
+     */
+    private class GraphicFaceTracker extends Tracker<Face> {
+        //private FaceGraphic mFaceGraphic;
+        Context mContext = CameraActivity.this;
+        private GraphicOverlay mOverlay;
+
+        GraphicFaceTracker(GraphicOverlay overlay, Context context) {
+            this.mContext = context;
+            Log.isLoggable("Hi", imageID.getId());
+            mOverlay = overlay;
+            mFaceGraphic = new FaceGraphic(overlay, context, imageID.getId(), addImage());
+
+        }
+
+
+        // Start tracking the detected face instance within the face overlay.
+        @Override
+        public void onNewItem(int faceId, Face item) {
+            mFaceGraphic = new FaceGraphic(mOverlay, mContext, mIsFrontFacing, addImage());
+            mFaceGraphic.setId(faceId);
+        }
+
+
+        //Update the position/characteristics of the face within the overlay.
+        //Take action on face detected
+
+        @Override
+        public void onUpdate(FaceDetector.Detections<Face> detectionResults, Face face) {
+            mOverlay.add(mFaceGraphic);
+
+            updatePreviousLandmarkPositions(face);
+
+            // Get face dimensions.
+            mFaceData.setPosition(face.getPosition());
+            mFaceData.setWidth(face.getWidth());
+            mFaceData.setHeight(face.getHeight());
+
+            // Get head angles.
+            mFaceData.setEulerY(face.getEulerY());
+            mFaceData.setEulerZ(face.getEulerZ());
+
+            // Get the positions of facial landmarks.
+            mFaceData.setLeftEyePosition(getLandmarkPosition(face, Landmark.LEFT_EYE));
+            mFaceData.setRightEyePosition(getLandmarkPosition(face, Landmark.RIGHT_EYE));
+            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.LEFT_CHEEK));
+            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.RIGHT_CHEEK));
+            mFaceData.setNoseBasePosition(getLandmarkPosition(face, Landmark.NOSE_BASE));
+            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.LEFT_EAR));
+            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.LEFT_EAR_TIP));
+            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.RIGHT_EAR));
+            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.RIGHT_EAR_TIP));
+            mFaceData.setMouthLeftPosition(getLandmarkPosition(face, Landmark.LEFT_MOUTH));
+            mFaceData.setMouthBottomPosition(getLandmarkPosition(face, Landmark.BOTTOM_MOUTH));
+            mFaceData.setMouthRightPosition(getLandmarkPosition(face, Landmark.RIGHT_MOUTH));
+
+            // Determine if eyes are open.
+            final float EYE_CLOSED_THRESHOLD = 0.4f;
+            float leftOpenScore = face.getIsLeftEyeOpenProbability();
+            if (leftOpenScore == Face.UNCOMPUTED_PROBABILITY) {
+                mFaceData.setLeftEyeOpen(mPreviousIsLeftEyeOpen);
+            } else {
+                mFaceData.setLeftEyeOpen(leftOpenScore > EYE_CLOSED_THRESHOLD);
+                mPreviousIsLeftEyeOpen = mFaceData.isLeftEyeOpen();
+            }
+            float rightOpenScore = face.getIsRightEyeOpenProbability();
+            if (rightOpenScore == Face.UNCOMPUTED_PROBABILITY) {
+                mFaceData.setRightEyeOpen(mPreviousIsRightEyeOpen);
+            } else {
+                mFaceData.setRightEyeOpen(rightOpenScore > EYE_CLOSED_THRESHOLD);
+                mPreviousIsRightEyeOpen = mFaceData.isRightEyeOpen();
+            }
+
+            // See if there's a smile!
+            // Determine if person is smiling.
+            final float SMILING_THRESHOLD = 0.8f;
+            mFaceData.setSmiling(face.getIsSmilingProbability() > SMILING_THRESHOLD);
+            mFaceGraphic.update(mFaceData);
+            mFaceGraphic.updateFace(face, imageID.getId());
+
+        }
+
+        private PointF getLandmarkPosition(Face face, int landmarkId) {
+            for (Landmark landmark : face.getLandmarks()) {
+                if (landmark.getType() == landmarkId) {
+                    return landmark.getPosition();
+                }
+            }
+
+            PointF landmarkPosition = mPreviousLandmarkPositions.get(landmarkId);
+            if (landmarkPosition == null) {
+                return null;
+            }
+
+            float x = face.getPosition().x + (landmarkPosition.x * face.getWidth());
+            float y = face.getPosition().y + (landmarkPosition.y * face.getHeight());
+            return new PointF(x, y);
+        }
+
+        private void updatePreviousLandmarkPositions(Face face) {
+            for (Landmark landmark : face.getLandmarks()) {
+                PointF position = landmark.getPosition();
+                float xProp = (position.x - face.getPosition().x) / face.getWidth();
+                float yProp = (position.y - face.getPosition().y) / face.getHeight();
+                mPreviousLandmarkPositions.put(landmark.getType(), new PointF(xProp, yProp));
+            }
+        }
+
+
+        @Override
+        public void onMissing(FaceDetector.Detections<Face> detectionResults) {
+            mOverlay.remove(mFaceGraphic);
+        }
+
+
+        @Override
+        public void onDone() {
+            mOverlay.remove(mFaceGraphic);
+        }
+    }
 
 
 }

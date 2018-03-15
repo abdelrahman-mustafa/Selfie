@@ -18,6 +18,7 @@ import java.util.Set;
 
 public class GraphicOverlay extends View {
     public static Canvas selectedCanvas;
+    private static Context context;
     private final Object mLock = new Object();
     private int mPreviewWidth;
     private float mWidthScaleFactor = 1.0f;
@@ -25,19 +26,17 @@ public class GraphicOverlay extends View {
     private float mHeightScaleFactor = 1.0f;
     private int mFacing = CameraSource.CAMERA_FACING_BACK;
     private Set<Graphic> mGraphics = new HashSet<>();
-    private Context context;
-
     public GraphicOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public static Canvas getSelectedCanvas() {
-        return selectedCanvas;
-    }
-
-    public void setContext(Context mcontext) {
+    public static void setContext(Context mcontext) {
         if (context == null)
             context = mcontext;
+    }
+
+    public static Canvas getSelectedCanvas() {
+        return selectedCanvas;
     }
 
     /**
@@ -112,8 +111,9 @@ public class GraphicOverlay extends View {
     public static abstract class Graphic {
         private GraphicOverlay mOverlay;
 
-        public Graphic(GraphicOverlay overlay) {
+        public Graphic(GraphicOverlay overlay, Context mcontext) {
             mOverlay = overlay;
+            mcontext = context;
         }
 
         /**
