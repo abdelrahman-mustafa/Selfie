@@ -57,6 +57,7 @@ import java.util.Map;
 
 
 public class CameraActivity extends AppCompatActivity {
+    //reverted
     private static final String TAG = "CamiraActivity";
     private static final int RC_HANDLE_GMS = 9001;
     private static final int RC_HANDLE_CAMERA_PERM = 2;
