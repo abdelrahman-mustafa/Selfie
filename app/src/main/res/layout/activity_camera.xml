@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:keepScreenOn="true"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/view0"
@@ -46,22 +44,29 @@
     </LinearLayout>
 
 
-    <com.indeves.selfieapp.CameraSourcePreview
-        android:id="@+id/preview"
+    <LinearLayout
+        android:id="@+id/linear"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/view8"
-        android:layout_below="@+id/view0"
-        android:background="#000000"
-        android:visibility="visible">
+        android:layout_above="@id/view8"
+        android:layout_below="@id/view0">
 
-
-        <com.indeves.selfieapp.GraphicOverlay
-            android:id="@+id/faceOverlay"
+        <com.indeves.selfieapp.CameraSourcePreview
+            android:id="@+id/preview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:layout_gravity="center|bottom"
+            android:visibility="visible">
 
-    </com.indeves.selfieapp.CameraSourcePreview>
+
+            <com.indeves.selfieapp.GraphicOverlay
+                android:id="@+id/faceOverlay"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" />
+
+        </com.indeves.selfieapp.CameraSourcePreview>
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/image"
@@ -69,7 +74,6 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="20dp"
         android:src="@drawable/home_screen_slogan"
         android:visibility="gone" />
 
@@ -87,7 +91,6 @@
         android:layout_alignParentRight="true"
         android:layout_gravity="bottom|right"
         android:layout_marginRight="20dp"
-
         android:src="@drawable/home_screen_slogan" />
     <!--<Button
         android:id="@+id/capture"
@@ -113,7 +116,8 @@
             android:layout_gravity="bottom|center_horizontal"
             android:layout_weight="1"
             android:background="#393535"
-            android:gravity="bottom" />
+            android:gravity="bottom"
+            android:src="@drawable/add_timer" />
 
 
         <ImageButton

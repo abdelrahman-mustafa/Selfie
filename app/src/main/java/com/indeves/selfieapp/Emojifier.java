@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.media.FaceDetector;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +30,7 @@ public class Emojifier {
 
     static int id;
 
-    static Bitmap detecFaces(Context context, Bitmap bitmap, int h, FaceData faceData) {
+    static Bitmap detecFaces(Context context, Bitmap bitmap, int h, FaceData faceData , Canvas rect) {
 
 
         id = h;
@@ -93,48 +94,46 @@ public class Emojifier {
                     default:
                         emojiBitmap = null;
                 }
-                resultBitmap = addBitmapToFace(resultBitmap, emojiBitmap, face, faceData);
+                resultBitmap = addBitmapToFace(resultBitmap, emojiBitmap, face,faceData,rect);
             } else {
                 Bitmap bitmap1;
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 2;
                 switch (h) {
                     case 1:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.frown, options);
+                                R.drawable.frown);
                         break;
                     case 2:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.borneta, options);
+                                R.drawable.borneta);
                         break;
                     case 3:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.tartor, options);
+                                R.drawable.tartor);
                         break;
                     case 4:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.oaaal, options);
+                                R.drawable.oaaal);
                         break;
                     case 5:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.shanb2, options);
+                                R.drawable.shanb2);
                         break;
                     case 6:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.shanb, options);
+                                R.drawable.shanb);
                         break;
                     case 7:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.fionka, options);
+                                R.drawable.fionka);
                         break;
                     case 8:
                         bitmap1 = BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.tarposh, options);
+                                R.drawable.tarposh);
                         break;
                     default:
                         bitmap1 = null;
                 }
-                resultBitmap = addBitmapToFace(resultBitmap, bitmap1, face, faceData);
+                resultBitmap = addBitmapToFace(resultBitmap, bitmap1, face, faceData,rect);
             }
 
             detector.release();
@@ -182,11 +181,22 @@ public class Emojifier {
         return emoji;
     }
 
-    public static Bitmap addBitmapToFace(Bitmap backgroundBitmap, Bitmap emojiBitmap, Face face, FaceData faceDat) {
+    private enum Emoji {
+        SMILE,
+        FROWN,
+        LEFT_WINK,
+        RIGHT_WINK,
+        LEFT_WINK_FROWN,
+        RIGHT_WINK_FROWN,
+        CLOSED_EYE_SMILE,
+        CLOSED_EYE_FROWN
+    }
+
+    public static Bitmap addBitmapToFace(Bitmap backgroundBitmap, Bitmap emojiBitmap, Face face, FaceData faceDat, Canvas canvas) {
 
         int left = 0;
         int right;
-        int top = 0;
+        int top =0;
         int bottom;
         if (faceDat != null) {
   /*          left = (int) faceDat.getLeftEarTipPosition().x;
@@ -194,8 +204,7 @@ public class Emojifier {
             top = (int) face.getHeight();
             bottom = (int) Math.min(faceDat.getLeftEyePosition().y, faceDat.getRightEyePosition().y);
 
-   */
-        }
+   */     }
         // Initialize the results bitmap to be a mutable copy of the original image
         Bitmap resultBitmap = Bitmap.createBitmap(backgroundBitmap.getWidth(),
                 backgroundBitmap.getHeight(), backgroundBitmap.getConfig());
@@ -218,7 +227,7 @@ public class Emojifier {
         float emojiPositionY =
                 (face.getPosition().y + face.getHeight() / 2) - emojiBitmap.getHeight() / 3;
         // Create the canvas and draw the bitmaps to it
-        Canvas canvas = new Canvas(resultBitmap);
+         canvas = new Canvas(resultBitmap);
         canvas.drawBitmap(backgroundBitmap, 0, 0, null);
 
         if (id > 0 && id < 4) {
@@ -228,24 +237,14 @@ public class Emojifier {
 
             //A.M - draw the selected item over the face
 
-            canvas.drawBitmap(emojiBitmap, face.getWidth(), face.getHeight(), null);
+
+//            canvas.drawBitmap(emojiBitmap, face.getLandmarks().get(Landmark.NOSE_BASE).getPosition().x + 50, faceDat.getEulerY(), null);
 
         } else {
             canvas.drawBitmap(emojiBitmap, emojiPositionX, emojiPositionY, null);
         }
 
         return resultBitmap;
-    }
-
-    private enum Emoji {
-        SMILE,
-        FROWN,
-        LEFT_WINK,
-        RIGHT_WINK,
-        LEFT_WINK_FROWN,
-        RIGHT_WINK_FROWN,
-        CLOSED_EYE_SMILE,
-        CLOSED_EYE_FROWN
     }
 
 

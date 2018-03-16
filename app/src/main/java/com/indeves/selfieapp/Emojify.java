@@ -32,12 +32,12 @@ public class Emojify extends AppCompatActivity {
     private static final int REQUEST_STORAGE_PERMISSION = 1;
     private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.fileprovider";
 
-    private ImageView mImageView;
+    private ImageView mImageView, back;
     private Button mEmojifyButton;
     private FloatingActionButton mShareFab;
     private FloatingActionButton mSaveFab;
     private FloatingActionButton mClearFab;
-    private TextView mTitleTextView;
+    private TextView mTitleTextView, save;
     private String mTempPhotoPath;
     private Bitmap mResultsBitmap;
 
@@ -45,6 +45,7 @@ public class Emojify extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emojify);
+
 
         mImageView = (ImageView) findViewById(R.id.image_view);
         mEmojifyButton = (Button) findViewById(R.id.emojify_button);
@@ -160,7 +161,7 @@ public class Emojify extends AppCompatActivity {
 
 
         // Detect the faces and overlay the appropriate emoji
-        mResultsBitmap = Emojifier.detecFaces(this, mResultsBitmap,0,null);
+        mResultsBitmap = Emojifier.detecFaces(this, mResultsBitmap,0,null,null);
 
         // Set the new bitmap to the ImageView
         mImageView.setImageBitmap(mResultsBitmap);

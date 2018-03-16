@@ -16,6 +16,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 
 import com.google.android.gms.common.ConnectionResult;
@@ -87,11 +89,13 @@ public class CameraActivity extends AppCompatActivity {
     private CameraSourcePreview mPreview;
     private GraphicOverlay mGraphicOverlay;
     private Context context = CameraActivity.this;
+    LinearLayout linearLayout;
     private boolean mIsFrontFacing = true;
     private FaceGraphic faceGraphic;
     private View.OnClickListener mSwitchCameraButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
             mIsFrontFacing = !mIsFrontFacing;
+
 
             if (mCameraSource != null) {
                 mCameraSource.release();
@@ -112,15 +116,17 @@ public class CameraActivity extends AppCompatActivity {
 
         mPreview = findViewById(R.id.preview);
         mGraphicOverlay = findViewById(R.id.faceOverlay);
+
         GraphicOverlay.setContext(getApplicationContext());
         imageView = findViewById(R.id.image);
         imageView.setVisibility(View.GONE);
-
+        linearLayout = findViewById(R.id.linear);
         recyclerView = findViewById(R.id.rec);
         recyclerView.setBackground(getDrawable(R.drawable.white));
         Drawable background = recyclerView.getBackground();
         background.setAlpha(80);
 
+        linearLayout.setDrawingCacheEnabled(true);
 
         final ImageButton button = (ImageButton) findViewById(R.id.flipButton);
         button.setOnClickListener(mSwitchCameraButtonListener);
@@ -147,22 +153,35 @@ public class CameraActivity extends AppCompatActivity {
                     @Override
                     public void onPictureTaken(byte[] bytes) {
 
-
-                        mPreview.setDrawingCacheEnabled(true);
-                        Bitmap overlay = mPreview.getDrawingCache();
+                        Bitmap image1 = Bitmap.createBitmap(linearLayout.getDrawingCache());
                         mCameraSource.release();
-                        Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        image = Emojifier.detecFaces(CameraActivity.this,image,i+1,mFaceData);
+                        Bitmap image2 = Bitmap.createBitmap(linearLayout.getDrawingCache());
+                        imageView.setImageBitmap(image2);
+                        // imageView.setVisibility(View.VISIBLE);
+
+/*
+
+                        Bitmap image2 = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        image = Emojifier.detecFaces(CameraActivity.this,image,i,mFaceData,mFaceGraphic.getCanvasSel());
                         mPreview.setVisibility(View.GONE);
                         Matrix matrix = new Matrix();
                         float[] mirrorY = {-1, 0, 0, 0, 1, 0, 0, 0, 1};
                         Matrix matrixMirrorY = new Matrix();
                         matrixMirrorY.setValues(mirrorY);
                         matrix.postConcat(matrixMirrorY);
-                        image = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(),
-                                matrix, true);
-                        imageView.setImageBitmap(image);
+//                        image2 = Bitmap.createBitmap(image, 0, 0, image2.getWidth(), image2.getHeight(), matrix, true);
+                        Bitmap bmOverlay = Bitmap.createBitmap(image2.getWidth(), image.getHeight(), image.getConfig());
+                        Bitmap mutableBitmap = image2.copy(Bitmap.Config.ARGB_8888, true);
+                        Bitmap mutableBitmap2 = image.copy(Bitmap.Config.ARGB_8888, true);
+
+                        Canvas canvas = new Canvas(mutableBitmap);
+                        canvas.drawBitmap(mutableBitmap2, new Matrix(), null);
+                        canvas.drawBitmap(mutableBitmap, 0, 0, null);
+
+                        //imageView.setImageDrawable(new BitmapDrawable(getResources(), bmOverlay));
+                        imageView.setImageBitmap(mutableBitmap);
                         imageView.setVisibility(View.VISIBLE);
+*/
 
 
                     }
@@ -186,6 +205,7 @@ public class CameraActivity extends AppCompatActivity {
         );
 
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -250,9 +270,13 @@ public class CameraActivity extends AppCompatActivity {
 
     public List<CameraButtons> addImage() {
         List<CameraButtons> list = new ArrayList<CameraButtons>();
+        CameraButtons cameraButtons0 = new CameraButtons();
+        cameraButtons0.setImagePath(R.drawable.frown);
+        list.add(cameraButtons0);
+        CameraButtons cameraButtons6 = new CameraButtons();
+        cameraButtons6.setImagePath(R.drawable.tarposh);
+        list.add(cameraButtons6);
         CameraButtons cameraButtons = new CameraButtons();
-        cameraButtons.setImagePath(R.drawable.frown);
-        list.add(cameraButtons);
         cameraButtons.setImagePath(R.drawable.borneta);
         list.add(cameraButtons);
         CameraButtons cameraButtons1 = new CameraButtons();
@@ -270,9 +294,7 @@ public class CameraActivity extends AppCompatActivity {
         CameraButtons cameraButtons5 = new CameraButtons();
         cameraButtons5.setImagePath(R.drawable.fionka);
         list.add(cameraButtons5);
-        CameraButtons cameraButtons6 = new CameraButtons();
-        cameraButtons6.setImagePath(R.drawable.tarposh);
-        list.add(cameraButtons6);
+
 
         return list;
     }
@@ -293,9 +315,10 @@ public class CameraActivity extends AppCompatActivity {
         mCameraSource = new CameraSource.Builder(context, detector)
                 .setFacing(facing)
                 .setRequestedPreviewSize(320, 240)
-                .setRequestedFps(60.0f)
-                .setAutoFocusEnabled(true)
+                .setRequestedFps(30.0f)
+                .setAutoFocusEnabled(false)
                 .build();
+
 
     }
 
@@ -304,10 +327,12 @@ public class CameraActivity extends AppCompatActivity {
         detector = new FaceDetector.Builder(context)
                 .setLandmarkType(FaceDetector.ALL_LANDMARKS)
                 .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
-                .setTrackingEnabled(true)
+                .setTrackingEnabled(false)
+                .setMode(FaceDetector.FAST_MODE)
                 .setProminentFaceOnly(mIsFrontFacing)
                 .setMinFaceSize(mIsFrontFacing ? 0.35f : 0.15f)
                 .build();
+
 
         detector.setProcessor(
                 new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory())
@@ -562,13 +587,13 @@ public class CameraActivity extends AppCompatActivity {
 
         @Override
         public void onMissing(FaceDetector.Detections<Face> detectionResults) {
-            mOverlay.remove(mFaceGraphic);
+           // mOverlay.remove(mFaceGraphic);
         }
 
 
         @Override
         public void onDone() {
-            mOverlay.remove(mFaceGraphic);
+         //   mOverlay.remove(mFaceGraphic);
         }
     }
 

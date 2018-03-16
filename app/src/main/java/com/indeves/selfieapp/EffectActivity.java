@@ -6,13 +6,19 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,7 +32,11 @@ import android.widget.Toast;
 import com.zomato.photofilters.SampleFilters;
 import com.zomato.photofilters.imageprocessors.Filter;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.List;
 
@@ -43,15 +53,37 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
     RelativeLayout.LayoutParams layoutParams;
     private Activity activity;
     private RecyclerView thumbListView;
-    private ImageView placeHolderImageView, clipPic, addEffect, writeOnPic, addButh, addFrame, rePickImage;
-    private TextView actionBarTitle;
+    private ImageView placeHolderImageView, clipPic, addEffect, writeOnPic, addButh, addFrame, rePickImage, back;
+    private TextView actionBarTitle , save;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ActionBar actionBar = getSupportActionBar();
         actionBarTitle = new TextView(getApplicationContext());
+        back = findViewById(R.id.back_button);
+        save = findViewById(R.id.save);
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bitmap bitmap = ((BitmapDrawable) placeHolderImageView.getDrawable()).getBitmap();
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
+                Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+                byte[] byteArray = out.toByteArray();
+
+                new SavePhotoTask().execute(byteArray);
+
+                    Intent intent = new Intent(EffectActivity.this, ShareActivity.class);
+
+                    //   intent.putExtra("inage",imageInByte);
+                    startActivity(intent);
+
+            }
+        });
+
         layoutParams = new RelativeLayout.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT);
         actionBarTitle.setLayoutParams(layoutParams);
         actionBarTitle.setText(getResources().getString(R.string.app_name));
@@ -172,7 +204,7 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
     // change the selected image over the original one to be viewed
     @Override
     public void onThumbnailClick(Filter filter) {
-        placeHolderImageView.setImageBitmap(filter.processFilter(Bitmap.createScaledBitmap(selectImage, 640, 640, false)));
+        placeHolderImageView.setImageBitmap(filter.processFilter(Bitmap.createScaledBitmap(selectImage, placeHolderImageView.getMeasuredWidth(), placeHolderImageView.getMeasuredHeight(), false)));
     }
 
     private void getImage() {
@@ -192,7 +224,7 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
                 final Uri imageUri = data.getData();
                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 selectImage = BitmapFactory.decodeStream(imageStream);
-                placeHolderImageView.setImageBitmap(Bitmap.createScaledBitmap(selectImage, 640, 640, false));
+                placeHolderImageView.setImageBitmap(Bitmap.createScaledBitmap(selectImage, selectImage.getWidth(), selectImage.getHeight(), false));
                 initHorizontalList();
 
 
@@ -253,5 +285,30 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
             getImage();
         }
 
+    }
+
+    class SavePhotoTask extends AsyncTask<byte[], String, String> {
+        @Override
+        protected String doInBackground(byte[]... jpeg) {
+            File photo=
+                    new File(Environment.getExternalStorageDirectory(),
+                            "photo.jpg");
+
+            if (photo.exists()) {
+                photo.delete();
+            }
+
+            try {
+                FileOutputStream fos=new FileOutputStream(photo.getPath());
+
+                fos.write(jpeg[0]);
+                fos.close();
+            }
+            catch (java.io.IOException e) {
+                Log.e("PictureDemo", "Exception in photoCallback", e);
+            }
+
+            return(null);
+        }
     }
 }

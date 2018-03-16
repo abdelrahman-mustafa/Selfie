@@ -41,7 +41,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     Bitmap emojiBitmap;
     Drawable buttonBitmap;
     Context context;
-    Canvas canvasSel;
+    static Canvas canvasSel;
     int i;
     List<CameraButtons> list = new ArrayList<>();
     private Paint mFacePositionPaint;
@@ -249,15 +249,15 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         // sufficiently jaunty angle.
         // Draw the eyes.
         PointF leftIrisPosition = mLeftPhysics.nextIrisPosition(leftEyePosition, eyeRadius, irisRadius);
-        drawEye(canvas, leftEyePosition, eyeRadius, leftIrisPosition, irisRadius, leftEyeOpen, smiling);
+        //drawEye(canvas, leftEyePosition, eyeRadius, leftIrisPosition, irisRadius, leftEyeOpen, smiling);
         PointF rightIrisPosition = mRightPhysics.nextIrisPosition(rightEyePosition, eyeRadius, irisRadius);
-        drawEye(canvas, rightEyePosition, eyeRadius, rightIrisPosition, irisRadius, rightEyeOpen, smiling);
+        //drawEye(canvas, rightEyePosition, eyeRadius, rightIrisPosition, irisRadius, rightEyeOpen, smiling);
 
         // Draw the nose.
-        drawNose(canvas, noseBasePosition, leftEyePosition, rightEyePosition, width);
+       // drawNose(canvas, noseBasePosition, leftEyePosition, rightEyePosition, width);
 
         // Draw the mustache.
-        drawMustache(canvas, noseBasePosition, mouthLeftPosition, mouthRightPosition);
+        //drawMustache(canvas, noseBasePosition, mouthLeftPosition, mouthRightPosition);
 
         // Draw the hat only if the subject's head is titled at a
         // sufficiently jaunty angle.
@@ -332,7 +332,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         float bottom = y + yOffset;*/
 
 
-        if (i != 0) {
+        if (i > 0 && i<4) {
             buttonBitmap = getBit(i);
             float noseWidth = width * scaleFactor;
             int left = (int) (noseBasePosition.x - (noseWidth / 2));
@@ -344,13 +344,43 @@ class FaceGraphic extends GraphicOverlay.Graphic {
             buttonBitmap.draw(canvas);
             Log.d("button", "detected ---1");
 
-        } else {
-
-
-        }/*else {
+        } else if (i == 0) {
             canvas.drawBitmap(emojiBitmap, emojiPositionX, emojiPositionY, null);
 
-        }*/
+
+        }else if (i > 6 ){
+            buttonBitmap = getBit(i);
+            int left = (int) mouthLeftPosition.x;
+            int top = (int) noseBasePosition.y;
+            int right = (int) mouthRightPosition.x;
+            int bottom = (int) Math.min(mouthLeftPosition.y, mouthRightPosition.y);
+
+            buttonBitmap.setBounds(left, top, right, bottom);
+            buttonBitmap.draw(canvas);
+        }else if (i==4){
+            buttonBitmap = getBit(i);
+            float noseWidth = width * scaleFactor;
+            int left = (int) (noseBasePosition.x - (noseWidth / 2));
+            int right = (int) (noseBasePosition.x + (noseWidth / 2));
+            int top = (int) (int) noseBasePosition.y / 3 ;
+            int bottom = (int) Math.min(mouthLeftPosition.y, mouthRightPosition.y)/2+ 200;
+
+            buttonBitmap.setBounds(left, top, right, bottom);
+            buttonBitmap.draw(canvas);
+            Log.d("button", "detected ---1");
+        }else if (i >4 && i <7){
+
+            buttonBitmap = getBit(i);   final float NOSE_FACE_WIDTH_RATIO = (float) (1 / 5.0);
+            float noseWidth = width * NOSE_FACE_WIDTH_RATIO;
+            int left = (int) (noseBasePosition.x - (noseWidth ));
+            int right = (int) (noseBasePosition.x + (noseWidth ));
+            int top = (int) (leftEyePosition.y + rightEyePosition.y)/2 -90 ;
+            int bottom = (int) (noseBasePosition).y-180;
+            buttonBitmap.setBounds(left, top, right, bottom);
+
+
+            buttonBitmap.draw(canvas);
+        }
 
 
 //        canvas.drawRect(left, top, right, bottom, mBoxPaint);
@@ -370,6 +400,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         bitmap = context.getDrawable(cameraButtons.getImagePath());
         return bitmap;
     }
+
 
     private void initializePaints(Resources resources) {
         mHintTextPaint = new Paint();
@@ -491,6 +522,27 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         CLOSED_EYE_SMILE,
         CLOSED_EYE_FROWN
     }
+
+
+    // position of nose
+  /*  buttonBitmap = getBit(i);   final float NOSE_FACE_WIDTH_RATIO = (float) (1 / 5.0);
+    float noseWidth = width * NOSE_FACE_WIDTH_RATIO;
+    int left = (int) (noseBasePosition.x - (noseWidth / 2)+2);
+    int right = (int) (noseBasePosition.x + (noseWidth / 2));
+    int top = (int) (leftEyePosition.y + rightEyePosition.y) /4;
+    int bottom = (int) (noseBasePosition).y-200;
+            buttonBitmap.setBounds(left, top, right, bottom);
+    */
+
+  // position of Mustache
+  /*  buttonBitmap = getBit(i);   final float NOSE_FACE_WIDTH_RATIO = (float) (1 / 5.0);
+    float noseWidth = width * NOSE_FACE_WIDTH_RATIO;
+    int left = (int) (noseBasePosition.x - (noseWidth / 2)+2);
+    int right = (int) (noseBasePosition.x + (noseWidth / 2));
+    int top = (int) (leftEyePosition.y + rightEyePosition.y)/2 -100 ;
+    int bottom = (int) (noseBasePosition).y-180;
+            buttonBitmap.setBounds(left, top, right, bottom);
+*/
 
 }
 

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class PickFromGalleryActivity extends AppCompatActivity {
@@ -61,7 +63,14 @@ public class PickFromGalleryActivity extends AppCompatActivity {
         mSaveFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                saveMe(view);
+                Bitmap bitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] imageInByte = baos.toByteArray();
+
+
+                Intent intent = new Intent(PickFromGalleryActivity.this, ShareActivity.class);
+                intent.putExtra("inage",imageInByte);
             }
         });
 
@@ -100,10 +109,17 @@ public class PickFromGalleryActivity extends AppCompatActivity {
         mClearFab.setVisibility(View.VISIBLE);
 
         // Detect the faces and overlay the appropriate emoji
-        mResultsBitmap = Emojifier.detecFaces(this, mResultsBitmap,0,null);
+        mResultsBitmap = Emojifier.detecFaces(this, mResultsBitmap, 0, null, null);
 
         // Set the new bitmap to the ImageView
         mImageView.setImageBitmap(mResultsBitmap);
+
+        Bitmap bitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] imageInByte = baos.toByteArray();
+
+
     }
 
 }
