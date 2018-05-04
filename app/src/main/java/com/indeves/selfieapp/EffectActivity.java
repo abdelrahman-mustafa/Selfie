@@ -1,7 +1,9 @@
 package com.indeves.selfieapp;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,16 +39,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 public class EffectActivity extends AppCompatActivity implements ThumbnailCallback, View.OnClickListener {
     private static int RESULT_LOAD_IMAGE = 1;
+    //keep track of cropping intent
+    final int PIC_CROP = 2;
+    Bitmap thePic;
 
     static {
         System.loadLibrary("NativeImageProcessor");
     }
 
+    Uri imageUri;
     Bitmap selectImage;
     Bitmap image;
     RelativeLayout thumbnailsContainer;
@@ -54,7 +61,7 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
     private Activity activity;
     private RecyclerView thumbListView;
     private ImageView placeHolderImageView, clipPic, addEffect, writeOnPic, addButh, addFrame, rePickImage, back;
-    private TextView actionBarTitle , save;
+    private TextView actionBarTitle, save;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -70,16 +77,14 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
             public void onClick(View v) {
                 Bitmap bitmap = ((BitmapDrawable) placeHolderImageView.getDrawable()).getBitmap();
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
-                Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
-                byte[] byteArray = out.toByteArray();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
 
-                new SavePhotoTask().execute(byteArray);
+                String path = saveInInternalStorage(bitmap);
 
-                    Intent intent = new Intent(EffectActivity.this, ShareActivity.class);
+                Intent intent = new Intent(EffectActivity.this, ShareActivity.class);
 
-                    //   intent.putExtra("inage",imageInByte);
-                    startActivity(intent);
+                intent.putExtra("inage", path);
+                startActivity(intent);
 
             }
         });
@@ -219,9 +224,9 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
         super.onActivityResult(reqCode, resultCode, data);
 
 
-        if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK && reqCode != PIC_CROP) {
             try {
-                final Uri imageUri = data.getData();
+                imageUri = data.getData();
                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 selectImage = BitmapFactory.decodeStream(imageStream);
                 placeHolderImageView.setImageBitmap(Bitmap.createScaledBitmap(selectImage, selectImage.getWidth(), selectImage.getHeight(), false));
@@ -231,6 +236,17 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 Toast.makeText(EffectActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+            }
+
+        } else if (reqCode == PIC_CROP) {
+            Bundle extras = data.getExtras();
+
+//get the returned data
+            if (resultCode != 0) {
+//get the cropped bitmap
+                selectImage = extras.getParcelable("data");
+                placeHolderImageView.setImageBitmap(Bitmap.createScaledBitmap(selectImage, selectImage.getWidth(), selectImage.getHeight(), false));
+                initHorizontalList();
             }
 
         } else {
@@ -247,6 +263,7 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
             writeOnPic.setImageResource(R.drawable.write_on_pic_unclicked);
             addFrame.setImageResource(R.drawable.add_frame_unclicked);
             thumbnailsContainer.setVisibility(View.GONE);
+            performCrop();
 
 
         } else if (v == addEffect) {
@@ -290,7 +307,7 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
     class SavePhotoTask extends AsyncTask<byte[], String, String> {
         @Override
         protected String doInBackground(byte[]... jpeg) {
-            File photo=
+            File photo =
                     new File(Environment.getExternalStorageDirectory(),
                             "photo.jpg");
 
@@ -299,16 +316,93 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
             }
 
             try {
-                FileOutputStream fos=new FileOutputStream(photo.getPath());
+                FileOutputStream fos = new FileOutputStream(photo.getPath());
 
                 fos.write(jpeg[0]);
                 fos.close();
-            }
-            catch (java.io.IOException e) {
+            } catch (java.io.IOException e) {
                 Log.e("PictureDemo", "Exception in photoCallback", e);
             }
 
-            return(null);
+            return (null);
         }
     }
+
+    private void saveToInternalStorage(Bitmap bitmapImage) {
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath = new File(directory, "profile.jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private String saveInInternalStorage(Bitmap bitmapImage) {
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath = new File(directory, "profile.jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return mypath.getAbsolutePath();
+    }
+
+    private void performCrop() {
+        try {
+
+            //call the standard crop action intent (the user device may not support it)
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+            //indicate image type and Uri
+            cropIntent.setDataAndType(imageUri, "image/*");
+            //set crop properties
+            cropIntent.putExtra("crop", "true");
+            //indicate aspect of desired crop
+            cropIntent.putExtra("aspectX", 1);
+            cropIntent.putExtra("aspectY", 1);
+            //indicate output X and Y
+            cropIntent.putExtra("outputX", 256);
+            cropIntent.putExtra("outputY", 256);
+            //retrieve data on return
+            cropIntent.putExtra("return-data", true);
+            //start the activity - we handle returning in onActivityResult
+            startActivityForResult(cropIntent, PIC_CROP);
+
+        } catch (ActivityNotFoundException anfe) {
+            //display an error message
+            String errorMessage = "Whoops - your device doesn't support the crop action!";
+            Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+
+
 }
+

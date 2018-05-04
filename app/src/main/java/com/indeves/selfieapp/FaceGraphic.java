@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
@@ -14,6 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
+import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -21,6 +23,8 @@ import android.widget.Toast;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.Landmark;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +45,9 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     Bitmap emojiBitmap;
     Drawable buttonBitmap;
     Context context;
-    static Canvas canvasSel;
+    private Canvas canvasSel;
     int i;
+    private Canvas canvas;
     List<CameraButtons> list = new ArrayList<>();
     private Paint mFacePositionPaint;
     private Paint mIdPaint;
@@ -74,7 +79,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         this.context = context;
         mIsFrontFacing = isFrontFacing;
 
-        this.list = list;
+        this.list = addImage();
         Resources resources = context.getResources();
         initializePaints(resources);
         initializeGraphics(resources);
@@ -84,7 +89,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         super(overlay, context);
         this.context = context;
         this.i = i;
-        this.list = list;
+        this.list = addImage();
         mCurrentColorIndex = (mCurrentColorIndex + 1) % COLOR_CHOICES.length;
         final int selectedColor = COLOR_CHOICES[mCurrentColorIndex];
 
@@ -101,6 +106,59 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         mBoxPaint.setStrokeWidth(BOX_STROKE_WIDTH);
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public Bitmap addBitmapToFace(Bitmap backgroundBitmap) {
+
+        Bitmap resultBitmap = Bitmap.createBitmap(backgroundBitmap.getWidth(),
+                backgroundBitmap.getHeight(), backgroundBitmap.getConfig());
+
+        Canvas c = new Canvas(resultBitmap);
+        c = canvasSel;
+
+        canvasSel.getHeight();
+        canvasSel.getWidth();
+        return resultBitmap;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static Emoji getEmoji(Face face) {
         Log.d("smile", String.valueOf(face.getIsSmilingProbability()));
@@ -332,12 +390,12 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         float bottom = y + yOffset;*/
 
 
-        if (i > 0 && i<4) {
+        if (i > 0 && i<6) {
             buttonBitmap = getBit(i);
             float noseWidth = width * scaleFactor;
             int left = (int) (noseBasePosition.x - (noseWidth / 2));
             int right = (int) (noseBasePosition.x + (noseWidth / 2));
-            int top = (int) (leftEyePosition.y + rightEyePosition.y) / 8;
+            int top = (int) (leftEyePosition.y + rightEyePosition.y) / 8 - 90;
             int bottom = (int) noseBasePosition.y / 2;
 
             buttonBitmap.setBounds(left, top, right, bottom);
@@ -348,7 +406,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
             canvas.drawBitmap(emojiBitmap, emojiPositionX, emojiPositionY, null);
 
 
-        }else if (i > 6 ){
+        }else if (i > 9 ){
             buttonBitmap = getBit(i);
             int left = (int) mouthLeftPosition.x;
             int top = (int) noseBasePosition.y;
@@ -357,33 +415,52 @@ class FaceGraphic extends GraphicOverlay.Graphic {
 
             buttonBitmap.setBounds(left, top, right, bottom);
             buttonBitmap.draw(canvas);
-        }else if (i==4){
+        }else if (i >5 && i <7){
             buttonBitmap = getBit(i);
+            BitmapDrawable bitmapDrawable = (BitmapDrawable)buttonBitmap;
+            Bitmap bitmap = bitmapDrawable.getBitmap();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG,100,out);
+            Bitmap or = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+            Drawable drawable = new BitmapDrawable(or);
+
             float noseWidth = width * scaleFactor;
             int left = (int) (noseBasePosition.x - (noseWidth / 2));
             int right = (int) (noseBasePosition.x + (noseWidth / 2));
             int top = (int) (int) noseBasePosition.y / 3 ;
             int bottom = (int) Math.min(mouthLeftPosition.y, mouthRightPosition.y)/2+ 200;
 
-            buttonBitmap.setBounds(left, top, right, bottom);
-            buttonBitmap.draw(canvas);
+            drawable.setBounds(left, top, right, bottom);
+            drawable.draw(canvas);
             Log.d("button", "detected ---1");
-        }else if (i >4 && i <7){
+        }else if (i >6 && i <9){
 
             buttonBitmap = getBit(i);   final float NOSE_FACE_WIDTH_RATIO = (float) (1 / 5.0);
             float noseWidth = width * NOSE_FACE_WIDTH_RATIO;
             int left = (int) (noseBasePosition.x - (noseWidth ));
             int right = (int) (noseBasePosition.x + (noseWidth ));
-            int top = (int) (leftEyePosition.y + rightEyePosition.y)/2 -90 ;
-            int bottom = (int) (noseBasePosition).y-180;
+            int top = (int) (leftEyePosition.y + rightEyePosition.y)/2 -80 ;
+            int bottom = (int) (noseBasePosition).y-120;
             buttonBitmap.setBounds(left, top, right, bottom);
 
 
             buttonBitmap.draw(canvas);
+        }else if (i == 9){
+            buttonBitmap = getBit(i);   final float NOSE_FACE_WIDTH_RATIO = (float) (1 / 5.0);
+            float noseWidth = width * NOSE_FACE_WIDTH_RATIO;
+            int left = (int) (noseBasePosition.x - (noseWidth )-70);
+            int right = (int) (noseBasePosition.x + (noseWidth )+70);
+            int top = (int) (leftEyePosition.y + rightEyePosition.y)/2 -80 ;
+            int bottom = (int) Math.min(mouthLeftPosition.y, mouthRightPosition.y);
+            buttonBitmap.setBounds(left, top, right, bottom);
+
+
+            buttonBitmap.draw(canvas);
+
         }
 
-
 //        canvas.drawRect(left, top, right, bottom, mBoxPaint);
+
         canvasSel = canvas;
 
     }
@@ -544,5 +621,48 @@ class FaceGraphic extends GraphicOverlay.Graphic {
             buttonBitmap.setBounds(left, top, right, bottom);
 */
 
+
+
+    public ArrayList<CameraButtons> addImage() {
+        ArrayList<CameraButtons> list = new ArrayList<CameraButtons>();
+        CameraButtons cameraButtons0 = new CameraButtons();
+        cameraButtons0.setImagePath(R.drawable.frown);
+        list.add(cameraButtons0);
+        CameraButtons cameraButtons1 = new CameraButtons();
+        cameraButtons1.setImagePath(R.drawable.tarposh);
+        list.add(cameraButtons1);
+        CameraButtons cameraButtons2 = new CameraButtons();
+        cameraButtons2.setImagePath(R.drawable.asset2);
+        list.add(cameraButtons2);
+        CameraButtons cameraButtons3 = new CameraButtons();
+        cameraButtons3.setImagePath(R.drawable.borneta);
+        list.add(cameraButtons3);
+        CameraButtons cameraButtons4 = new CameraButtons();
+        cameraButtons4.setImagePath(R.drawable.tartor);
+        list.add(cameraButtons4);
+        CameraButtons cameraButtons6 = new CameraButtons();
+        cameraButtons6.setImagePath(R.drawable.asset1);
+        list.add(cameraButtons6);
+        CameraButtons cameraButtons5 = new CameraButtons();
+        cameraButtons5.setImagePath(R.drawable.oaaal);
+        list.add(cameraButtons5);
+        CameraButtons cameraButtons7 = new CameraButtons();
+        cameraButtons7.setImagePath(R.drawable.shanb2);
+        list.add(cameraButtons7);
+        CameraButtons cameraButtons8 = new CameraButtons();
+        cameraButtons8.setImagePath(R.drawable.shanb);
+        list.add(cameraButtons8);
+        CameraButtons cameraButtons9 = new CameraButtons();
+        cameraButtons9.setImagePath(R.drawable.asset);
+        list.add(cameraButtons9);
+        CameraButtons cameraButtons10 = new CameraButtons();
+        cameraButtons10.setImagePath(R.drawable.fionka);
+        list.add(cameraButtons10);
+        CameraButtons cameraButtons11 = new CameraButtons();
+        cameraButtons11.setImagePath(R.drawable.asset5);
+        list.add(cameraButtons11);
+        return list;
+    }
 }
+
 

@@ -104,7 +104,7 @@ public class StartHome extends AppCompatActivity implements View.OnClickListener
             startActivity(new Intent(StartHome.this, CameraActivity.class));
 
         } else if (v == pickForPhone || v == pickFromGallery) {
-            startActivity(new Intent(StartHome.this, EffectActivity.class));
+            startActivity(new Intent(StartHome.this, MainActivity.class));
 
         }
 

@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,11 +14,17 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,6 +38,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Size;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -45,6 +54,7 @@ import android.widget.RelativeLayout;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.CameraSource;
+import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.face.Face;
@@ -53,11 +63,19 @@ import com.google.android.gms.vision.face.Landmark;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static android.os.Environment.getExternalStorageDirectory;
+import static android.view.View.DRAWING_CACHE_QUALITY_HIGH;
+import static java.io.File.separator;
 
 
 public class CameraActivity extends AppCompatActivity {
@@ -73,10 +91,13 @@ public class CameraActivity extends AppCompatActivity {
     protected LayoutManagerType mCurrentLayoutManagerType;
     ImageID imageID = new ImageID();
     ImageView imageView;
+    RelativeLayout lable;
     ImageButton capture;
     FaceGraphic mFaceGraphic;
+    ImageButton getFrame;
     // permission request codes need to be < 256
     String photo = "";
+    Camera.ShutterCallback shutterCallback;
     int i = 0;
     RecyclerView recyclerView;
     FaceDetector detector;
@@ -91,9 +112,13 @@ public class CameraActivity extends AppCompatActivity {
     private CameraSourcePreview mPreview;
     private GraphicOverlay mGraphicOverlay;
     private Context context = CameraActivity.this;
-    //    LinearLayout linearLayout;
+    //FrameLayout linearLayout;
     private boolean mIsFrontFacing = true;
     private FaceGraphic faceGraphic;
+
+    FaceData faceData;
+    Face face;
+
     private View.OnClickListener mSwitchCameraButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
             mIsFrontFacing = !mIsFrontFacing;
@@ -118,15 +143,19 @@ public class CameraActivity extends AppCompatActivity {
 
         mPreview = findViewById(R.id.preview);
         mGraphicOverlay = findViewById(R.id.faceOverlay);
-
+        lable = findViewById(R.id.lable);
         GraphicOverlay.setContext(getApplicationContext());
         imageView = findViewById(R.id.image);
         imageView.setVisibility(View.GONE);
-//        linearLayout = findViewById(R.id.linear);
-        recyclerView = findViewById(R.id.rec);
-        recyclerView.setBackground(getDrawable(R.drawable.white));
-        Drawable background = recyclerView.getBackground();
-        background.setAlpha(80);
+        //recyclerView = findViewById(R.id.rec);
+        getFrame = findViewById(R.id.get_frame);
+        getFrame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(CameraActivity.this, AddFraneActivity.class));
+            }
+        });
+//        recyclerView.setBackground(getDrawable(R.drawable.white));
 
 //        linearLayout.setDrawingCacheEnabled(true);
 
@@ -145,67 +174,349 @@ public class CameraActivity extends AppCompatActivity {
         } else {
             requestCameraPermission();
         }
+        int position = getIntent().getIntExtra("position", 0);
+        imageID.setId(position);
+
         capture = findViewById(R.id.capture);
         capture.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+            public void onClick(View v) {/*mCameraSource.release();*/
+              //  captureImage();
                 Log.d("button", "detected");
+
 
                 mCameraSource.takePicture(null, new CameraSource.PictureCallback() {
 
                     @Override
                     public void onPictureTaken(byte[] bytes) {
 
-//                        Bitmap image1 = Bitmap.createBitmap(linearLayout.getDrawingCache());
+                  /*   mCameraSource.release();
+                        View v = lable.getRootView();
+                        v.setDrawingCacheEnabled(true);
+                        Bitmap b = v.getDrawingCache();
                         mCameraSource.release();
-//                        Bitmap image2 = Bitmap.createBitmap(linearLayout.getDrawingCache());
-//                        imageView.setImageBitmap(image2);
-//                         imageView.setVisibility(View.VISIBLE);
+                        imageView.setImageBitmap(b);
 
-/*
-
-                        Bitmap image2 = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        image = Emojifier.detecFaces(CameraActivity.this,image,i,mFaceData,mFaceGraphic.getCanvasSel());
-                        mPreview.setVisibility(View.GONE);
-                        Matrix matrix = new Matrix();
-                        float[] mirrorY = {-1, 0, 0, 0, 1, 0, 0, 0, 1};
-                        Matrix matrixMirrorY = new Matrix();
-                        matrixMirrorY.setValues(mirrorY);
-                        matrix.postConcat(matrixMirrorY);
-//                        image2 = Bitmap.createBitmap(image, 0, 0, image2.getWidth(), image2.getHeight(), matrix, true);
-                        Bitmap bmOverlay = Bitmap.createBitmap(image2.getWidth(), image.getHeight(), image.getConfig());
-                        Bitmap mutableBitmap = image2.copy(Bitmap.Config.ARGB_8888, true);
-                        Bitmap mutableBitmap2 = image.copy(Bitmap.Config.ARGB_8888, true);
-
-                        Canvas canvas = new Canvas(mutableBitmap);
-                        canvas.drawBitmap(mutableBitmap2, new Matrix(), null);
-                        canvas.drawBitmap(mutableBitmap, 0, 0, null);
-
-                        //imageView.setImageDrawable(new BitmapDrawable(getResources(), bmOverlay));
-                        imageView.setImageBitmap(mutableBitmap);
-                        imageView.setVisibility(View.VISIBLE);
+                        imageView.setImageBitmap(emojifier.detecFaces(getApplicationContext(),flip(image2),imageID.getId(),mFaceData,null));*//**//**//**//*
 */
+                        // Generate the Face Bitmap
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        Bitmap face = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+
+                        // Generate the Eyes Overlay Bitmap
+                        mPreview.setDrawingCacheEnabled(true);
+                        Bitmap overlay = mPreview.getDrawingCache();
+
+                        // Generate the final merged image
+                        Bitmap result = mergeBitmaps(flip(face), overlay);
+                     //   mPreview.setVisibility(View.GONE);
+                       // imageView.setVisibility(View.VISIBLE);
+                       // imageView.setImageBitmap(result);
+                       // saveInInternalStorage(result);
+                        Intent intent = new Intent(CameraActivity.this,ShareActivity.class);
+                        intent.putExtra("image",saveInInternalStorage(result));
+                        startActivity(intent);
 
 
                     }
+
                 });
 
-
             }
-        }); // take image function together with later main processing part.
-        cameraAdaptor = new CameraAdaptor(addImage(), CameraActivity.this);
-        LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(CameraActivity.this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerView.setLayoutManager(horizontalLayoutManager);
-        recyclerView.setAdapter(cameraAdaptor);
-        recyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        i = position;
-                        imageID.setId(position);
-                    }
-                })
-        );
+        });
 
+    }
+
+    private String  saveInInternalStorage(Bitmap bitmapImage) {
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        Date date = new Date();
+        File mypath = new File(directory, String.valueOf(date.getDate()) +"profile.jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return mypath.getAbsolutePath();
+    }
+
+    public Bitmap mergeBitmaps(Bitmap face, Bitmap overlay) {
+        // Create a new image with target size
+        int width = face.getWidth();
+        int height = face.getHeight();
+        Bitmap newBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        Rect faceRect = new Rect(0,0,width,height);
+        Rect overlayRect = new Rect(0,0,overlay.getWidth(),overlay.getHeight()-350);
+
+        // Draw face and then overlay (Make sure rects are as needed)
+        Canvas canvas = new Canvas(newBitmap);
+        canvas.drawBitmap(face, faceRect, faceRect, null);
+        canvas.drawBitmap(overlay, overlayRect, faceRect, null);
+        return newBitmap;
+    }
+
+
+
+
+
+    private void captureImage() {
+        mPreview.setDrawingCacheEnabled(true);
+        final Bitmap drawingCache = mPreview.getDrawingCache();
+
+        mCameraSource.takePicture( null, new CameraSource.PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] bytes) {
+               // int orientation = Exif.getOrientation(bytes);
+                Bitmap temp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+               // Bitmap picture = rotateImage(temp,orientation);
+                Bitmap overlay = Bitmap.createBitmap(mGraphicOverlay.getWidth(),mGraphicOverlay.getHeight(),temp.getConfig());
+                Canvas canvas = new Canvas(overlay);
+
+                Matrix matrix = new Matrix();
+
+                matrix.setScale((float)overlay.getWidth()/(float)temp.getWidth(),(float)overlay.getHeight()/(float)temp.getHeight());
+
+                // mirror by inverting scale and translating
+                matrix.preScale(-1, 1);
+                matrix.postTranslate(canvas.getWidth(), 0);
+
+                Paint paint = new Paint();
+                canvas.drawBitmap(temp,matrix,paint);
+                canvas.drawBitmap(drawingCache,0,0,paint);
+
+                try {
+                    String mainpath = getExternalStorageDirectory() + separator + "MaskIt" + separator + "images" + separator;
+                    File basePath = new File(mainpath);
+                    if (!basePath.exists())
+                        Log.d("CAPTURE_BASE_PATH", basePath.mkdirs() ? "Success": "Failed");
+                    String path = mainpath + "photo_"+ ".jpg";
+                    File captureFile = new File(path);
+                    captureFile.createNewFile();
+                    if (!captureFile.exists())
+                        Log.d("CAPTURE_FILE_PATH", captureFile.createNewFile() ? "Success": "Failed");
+                    FileOutputStream stream = new FileOutputStream(captureFile);
+                    overlay.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    stream.flush();
+                    stream.close();
+                    temp.recycle();
+                    drawingCache.recycle();
+                    mPreview.setDrawingCacheEnabled(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+
+    public  static class Exif {
+        private  final String TAG = "CameraExif";
+
+        // Returns the degrees in clockwise. Values are 0, 90, 180, or 270.
+        public static int getOrientation(byte[] jpeg) {
+            if (jpeg == null) {
+                return 0;
+            }
+
+            int offset = 0;
+            int length = 0;
+
+            // ISO/IEC 10918-1:1993(E)
+            while (offset + 3 < jpeg.length && (jpeg[offset++] & 0xFF) == 0xFF) {
+                int marker = jpeg[offset] & 0xFF;
+
+                // Check if the marker is a padding.
+                if (marker == 0xFF) {
+                    continue;
+                }
+                offset++;
+
+                // Check if the marker is SOI or TEM.
+                if (marker == 0xD8 || marker == 0x01) {
+                    continue;
+                }
+                // Check if the marker is EOI or SOS.
+                if (marker == 0xD9 || marker == 0xDA) {
+                    break;
+                }
+
+                // Get the length and check if it is reasonable.
+                length = pack(jpeg, offset, 2, false);
+                if (length < 2 || offset + length > jpeg.length) {
+                    Log.e("gggg", "Invalid length");
+                    return 0;
+                }
+
+                // Break if the marker is EXIF in APP1.
+                if (marker == 0xE1 && length >= 8 &&
+                        pack(jpeg, offset + 2, 4, false) == 0x45786966 &&
+                        pack(jpeg, offset + 6, 2, false) == 0) {
+                    offset += 8;
+                    length -= 8;
+                    break;
+                }
+
+                // Skip other markers.
+                offset += length;
+                length = 0;
+            }
+
+
+            // JEITA CP-3451 Exif Version 2.2
+            if (length > 8) {
+                // Identify the byte order.
+                int tag = pack(jpeg, offset, 4, false);
+                if (tag != 0x49492A00 && tag != 0x4D4D002A) {
+                    Log.e("gg", "Invalid byte order");
+                    return 0;
+                }
+                boolean littleEndian = (tag == 0x49492A00);
+
+                // Get the offset and check if it is reasonable.
+                int count = pack(jpeg, offset + 4, 4, littleEndian) + 2;
+                if (count < 10 || count > length) {
+                    Log.e("gg", "Invalid offset");
+                    return 0;
+                }
+                offset += count;
+                length -= count;
+
+                // Get the count and go through all the elements.
+                count = pack(jpeg, offset - 2, 2, littleEndian);
+                while (count-- > 0 && length >= 12) {
+                    // Get the tag and check if it is orientation.
+                    tag = pack(jpeg, offset, 2, littleEndian);
+                    if (tag == 0x0112) {
+                        // We do not really care about type and count, do we?
+                        int orientation = pack(jpeg, offset + 8, 2, littleEndian);
+                        switch (orientation) {
+                            case 1:
+                                return 0;
+                            case 3:
+                                return 3;
+                            case 6:
+                                return 6;
+                            case 8:
+                                return 8;
+                        }
+                        Log.i("gggg", "Unsupported orientation");
+                        return 0;
+                    }
+                    offset += 12;
+                    length -= 12;
+                }
+            }
+
+            Log.i("ggg", "Orientation not found");
+            return 0;
+        }
+
+        private static int pack(byte[] bytes, int offset, int length,
+                                boolean littleEndian) {
+            int step = 1;
+            if (littleEndian) {
+                offset += length - 1;
+                step = -1;
+            }
+
+            int value = 0;
+            while (length-- > 0) {
+                value = (value << 8) | (bytes[offset] & 0xFF);
+                offset += step;
+            }
+            return value;
+        }
+    }
+    private Bitmap rotateImage(Bitmap bm, int i) {
+        Matrix matrix = new Matrix();
+        switch (i) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bm;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bm;
+        }
+        try {
+            Bitmap bmRotated = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
+            bm.recycle();
+            return bmRotated;
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
+    public static Bitmap flip(Bitmap src) {
+        // create new matrix for transformation
+        Matrix matrix = new Matrix();
+
+        matrix.preScale(-1.0f, 1.0f);
+
+        // return transformed image
+        return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
+    }
+    public Bitmap loadBitmapFromView(View v, int width, int height) {
+        Bitmap b = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        v.layout(0, 0, v.getLayoutParams().width, v.getLayoutParams().height);
+        v.draw(c);
+        return b;
+    }
+
+
+    private PointF getLandmarkPosition(Face face, int landmarkId) {
+        for (Landmark landmark : face.getLandmarks()) {
+            if (landmark.getType() == landmarkId) {
+                return landmark.getPosition();
+            }
+        }
+
+        PointF landmarkPosition = mPreviousLandmarkPositions.get(landmarkId);
+        if (landmarkPosition == null) {
+            return null;
+        }
+
+        float x = face.getPosition().x + (landmarkPosition.x * face.getWidth());
+        float y = face.getPosition().y + (landmarkPosition.y * face.getHeight());
+        return new PointF(x, y);
     }
 
 
@@ -275,29 +586,43 @@ public class CameraActivity extends AppCompatActivity {
         CameraButtons cameraButtons0 = new CameraButtons();
         cameraButtons0.setImagePath(R.drawable.frown);
         list.add(cameraButtons0);
-        CameraButtons cameraButtons6 = new CameraButtons();
-        cameraButtons6.setImagePath(R.drawable.tarposh);
-        list.add(cameraButtons6);
-        CameraButtons cameraButtons = new CameraButtons();
-        cameraButtons.setImagePath(R.drawable.borneta);
-        list.add(cameraButtons);
         CameraButtons cameraButtons1 = new CameraButtons();
-        cameraButtons1.setImagePath(R.drawable.tartor);
+        cameraButtons1.setImagePath(R.drawable.tarposh);
         list.add(cameraButtons1);
+
         CameraButtons cameraButtons2 = new CameraButtons();
-        cameraButtons2.setImagePath(R.drawable.oaaal);
+        cameraButtons2.setImagePath(R.drawable.asset2);
         list.add(cameraButtons2);
         CameraButtons cameraButtons3 = new CameraButtons();
-        cameraButtons3.setImagePath(R.drawable.shanb2);
+        cameraButtons3.setImagePath(R.drawable.borneta);
         list.add(cameraButtons3);
         CameraButtons cameraButtons4 = new CameraButtons();
-        cameraButtons4.setImagePath(R.drawable.shanb);
+        cameraButtons4.setImagePath(R.drawable.tartor);
         list.add(cameraButtons4);
+        CameraButtons cameraButtons6 = new CameraButtons();
+        cameraButtons6.setImagePath(R.drawable.asset1);
+        list.add(cameraButtons6);
         CameraButtons cameraButtons5 = new CameraButtons();
-        cameraButtons5.setImagePath(R.drawable.fionka);
+        cameraButtons5.setImagePath(R.drawable.oaaal);
         list.add(cameraButtons5);
 
 
+        CameraButtons cameraButtons7 = new CameraButtons();
+        cameraButtons7.setImagePath(R.drawable.shanb2);
+        list.add(cameraButtons7);
+        CameraButtons cameraButtons8 = new CameraButtons();
+        cameraButtons8.setImagePath(R.drawable.shanb);
+        list.add(cameraButtons8);
+
+        CameraButtons cameraButtons9 = new CameraButtons();
+        cameraButtons9.setImagePath(R.drawable.asset);
+        list.add(cameraButtons9);
+        CameraButtons cameraButtons10 = new CameraButtons();
+        cameraButtons10.setImagePath(R.drawable.fionka);
+        list.add(cameraButtons10);
+        CameraButtons cameraButtons11 = new CameraButtons();
+        cameraButtons11.setImagePath(R.drawable.asset5);
+        list.add(cameraButtons11);
         return list;
     }
 
@@ -316,11 +641,10 @@ public class CameraActivity extends AppCompatActivity {
 
         mCameraSource = new CameraSource.Builder(context, detector)
                 .setFacing(facing)
-                .setRequestedPreviewSize(320, 240)
-                .setRequestedFps(30.0f)
-                .setAutoFocusEnabled(false)
+                .setRequestedPreviewSize(1280, 960)
+                .setRequestedFps(60.0f)
+                .setAutoFocusEnabled(true)
                 .build();
-
 
     }
 
@@ -329,7 +653,7 @@ public class CameraActivity extends AppCompatActivity {
         detector = new FaceDetector.Builder(context)
                 .setLandmarkType(FaceDetector.ALL_LANDMARKS)
                 .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
-                .setTrackingEnabled(false)
+                .setTrackingEnabled(true)
                 .setMode(FaceDetector.FAST_MODE)
                 .setProminentFaceOnly(mIsFrontFacing)
                 .setMinFaceSize(mIsFrontFacing ? 0.35f : 0.15f)
@@ -497,7 +821,7 @@ public class CameraActivity extends AppCompatActivity {
         // Start tracking the detected face instance within the face overlay.
         @Override
         public void onNewItem(int faceId, Face item) {
-            mFaceGraphic = new FaceGraphic(mOverlay, mContext, mIsFrontFacing, addImage());
+            mFaceGraphic = new FaceGraphic(mOverlay, mContext, mIsFrontFacing, null);
             mFaceGraphic.setId(faceId);
         }
 
@@ -589,15 +913,22 @@ public class CameraActivity extends AppCompatActivity {
 
         @Override
         public void onMissing(FaceDetector.Detections<Face> detectionResults) {
-           // mOverlay.remove(mFaceGraphic);
+            mOverlay.remove(mFaceGraphic);
         }
 
 
         @Override
         public void onDone() {
-         //   mOverlay.remove(mFaceGraphic);
+            //   mOverlay.remove(mFaceGraphic);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(CameraActivity.this, StartHome.class));
     }
 
 
 }
+

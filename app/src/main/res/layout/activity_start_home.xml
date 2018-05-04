@@ -20,34 +20,49 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
         android:padding="20dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.771"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.772">
 
         <RelativeLayout
-            android:id="@+id/emojify_layout"
+            android:id="@+id/pick_from_gallery_layout"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:background="@color/colorPrimaryDark"
             android:translationZ="5dp">
 
+
+
+
             <ImageView
-                android:id="@+id/icon1"
+                android:id="@+id/icon3"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/emojify_me_icon" />
+                android:background="@drawable/pick_from_gallery" />
 
             <Button
-                android:id="@+id/home_button_emojify"
+                android:id="@+id/homeScreen_pickFromPhone_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/icon1"
+                android:layout_below="@id/icon3"
                 android:layout_centerHorizontal="true"
                 android:background="@android:color/transparent"
-                android:text="Emojify My Face"
+                android:text="@string/btn_pick_from_phone"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white" />
+
+
         </RelativeLayout>
 
         <RelativeLayout
@@ -55,7 +70,7 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_marginStart="20dp"
-            android:layout_toEndOf="@+id/emojify_layout"
+            android:layout_toEndOf="@+id/pick_from_gallery_layout"
             android:background="@color/colorPrimaryDark"
             android:translationZ="5dp">
 
@@ -80,30 +95,30 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/pick_from_gallery_layout"
+            android:id="@+id/emojify_layout"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_below="@+id/emojify_layout"
             android:layout_marginTop="20dp"
             android:background="@color/colorPrimaryDark"
-            android:translationZ="5dp">
+            android:translationZ="5dp"
+            android:visibility="gone">
 
             <ImageView
-                android:id="@+id/icon3"
+                android:id="@+id/icon1"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/pick_from_gallery" />
+                android:src="@drawable/emojify_me_icon" />
 
             <Button
-                android:id="@+id/homeScreen_pickFromPhone_button"
+                android:id="@+id/home_button_emojify"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/icon3"
+                android:layout_below="@+id/icon1"
                 android:layout_centerHorizontal="true"
                 android:background="@android:color/transparent"
-                android:text="@string/btn_pick_from_phone"
+                android:text="Emojify My Face"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white" />
         </RelativeLayout>
