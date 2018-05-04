@@ -35,9 +35,11 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 
 import com.google.android.gms.common.ConnectionResult;
@@ -89,7 +91,7 @@ public class CameraActivity extends AppCompatActivity {
     private CameraSourcePreview mPreview;
     private GraphicOverlay mGraphicOverlay;
     private Context context = CameraActivity.this;
-    LinearLayout linearLayout;
+    //    LinearLayout linearLayout;
     private boolean mIsFrontFacing = true;
     private FaceGraphic faceGraphic;
     private View.OnClickListener mSwitchCameraButtonListener = new View.OnClickListener() {
@@ -120,13 +122,13 @@ public class CameraActivity extends AppCompatActivity {
         GraphicOverlay.setContext(getApplicationContext());
         imageView = findViewById(R.id.image);
         imageView.setVisibility(View.GONE);
-        linearLayout = findViewById(R.id.linear);
+//        linearLayout = findViewById(R.id.linear);
         recyclerView = findViewById(R.id.rec);
         recyclerView.setBackground(getDrawable(R.drawable.white));
         Drawable background = recyclerView.getBackground();
         background.setAlpha(80);
 
-        linearLayout.setDrawingCacheEnabled(true);
+//        linearLayout.setDrawingCacheEnabled(true);
 
         final ImageButton button = (ImageButton) findViewById(R.id.flipButton);
         button.setOnClickListener(mSwitchCameraButtonListener);
@@ -153,11 +155,11 @@ public class CameraActivity extends AppCompatActivity {
                     @Override
                     public void onPictureTaken(byte[] bytes) {
 
-                        Bitmap image1 = Bitmap.createBitmap(linearLayout.getDrawingCache());
+//                        Bitmap image1 = Bitmap.createBitmap(linearLayout.getDrawingCache());
                         mCameraSource.release();
-                        Bitmap image2 = Bitmap.createBitmap(linearLayout.getDrawingCache());
-                        imageView.setImageBitmap(image2);
-                        // imageView.setVisibility(View.VISIBLE);
+//                        Bitmap image2 = Bitmap.createBitmap(linearLayout.getDrawingCache());
+//                        imageView.setImageBitmap(image2);
+//                         imageView.setVisibility(View.VISIBLE);
 
 /*
 
