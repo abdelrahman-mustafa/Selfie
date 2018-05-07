@@ -6,6 +6,7 @@
         android:width="1dp"
         android:height="1dp" />
 
-    <solid android:color="#c2baba" />
+    <gradient android:endColor="@color/white"/>
+    <solid android:color="#c2c2c2" />
 
 </shape>

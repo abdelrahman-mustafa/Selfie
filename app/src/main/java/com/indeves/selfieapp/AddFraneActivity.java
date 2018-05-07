@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -21,6 +22,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import com.dgreenhalgh.android.simpleitemdecoration.grid.GridDividerItemDecoration;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,62 +33,6 @@ public class AddFraneActivity extends AppCompatActivity {
 
 ImageButton back;
 
-    public class SeparatorDecoration extends RecyclerView.ItemDecoration {
-
-        private final Paint mPaint;
-
-        /**
-         * Create a decoration that draws a line in the given color and width between the items in the view.
-         *
-         * @param context  a context to access the resources.
-         * @param color    the color of the separator to draw.
-         * @param heightDp the height of the separator in dp.
-         */
-        public SeparatorDecoration(@NonNull Context context, @ColorInt int color,
-                                   @FloatRange(from = 0, fromInclusive = false) float heightDp) {
-            mPaint = new Paint();
-            mPaint.setColor(color);
-            final float thickness = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                    heightDp, context.getResources().getDisplayMetrics());
-            mPaint.setStrokeWidth(thickness);
-        }
-
-        @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
-
-            // we want to retrieve the position in the list
-            final int position = params.getViewAdapterPosition();
-
-            // and add a separator to any view but the last one
-            if (position < state.getItemCount()) {
-                outRect.set(0, 0, 0, (int) mPaint.getStrokeWidth()); // left, top, right, bottom
-            } else {
-                outRect.setEmpty(); // 0, 0, 0, 0
-            }
-        }
-
-        @Override
-        public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-            // we set the stroke width before, so as to correctly draw the line we have to offset by width / 2
-            final int offset = (int) (mPaint.getStrokeWidth() / 2);
-
-            // this will iterate over every visible view
-            for (int i = 0; i < parent.getChildCount(); i++) {
-                // get the view
-                final View view = parent.getChildAt(i);
-                final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
-
-                // get the position
-                final int position = params.getViewAdapterPosition();
-
-                // and finally draw the separator
-                if (position < state.getItemCount()) {
-                    c.drawLine(view.getLeft(), view.getBottom() + offset, view.getRight(), view.getBottom() + offset, mPaint);
-                }
-            }
-        }
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,6 +58,11 @@ ImageButton back;
                 getApplicationContext()
         ));
 
+
+        Drawable horizontalDivider = ContextCompat.getDrawable(this, R.drawable.line_divider);
+        Drawable verticalDivider = ContextCompat.getDrawable(this, R.drawable.line_divider);
+        recyclerView.addItemDecoration(new GridDividerItemDecoration(horizontalDivider, verticalDivider, 3));
+
         recyclerView.setAdapter(framesAdapter);
         framesAdapter.notifyDataSetChanged();
         recyclerView.addOnItemTouchListener(
@@ -120,6 +72,7 @@ ImageButton back;
                         Intent intent = new Intent(AddFraneActivity.this,CameraActivity.class);
                         intent.putExtra("position",position);
                         startActivity(intent);
+                        finish();
                     }
                 })
         );
@@ -193,6 +146,20 @@ ImageButton back;
                 mDivider.setBounds(left, top, right, bottom);
                 mDivider.draw(c);
             }
+        }
+    }
+    public class VerticalSpaceItemDecoration extends RecyclerView.ItemDecoration {
+
+        private final int verticalSpaceHeight;
+
+        public VerticalSpaceItemDecoration(int verticalSpaceHeight) {
+            this.verticalSpaceHeight = verticalSpaceHeight;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                                   RecyclerView.State state) {
+            outRect.bottom = verticalSpaceHeight;
         }
     }
 

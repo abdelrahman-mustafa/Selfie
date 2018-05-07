@@ -83,7 +83,7 @@ public class EffectActivity extends AppCompatActivity implements ThumbnailCallba
 
                 Intent intent = new Intent(EffectActivity.this, ShareActivity.class);
 
-                intent.putExtra("inage", path);
+                intent.putExtra("image", path);
                 startActivity(intent);
 
             }

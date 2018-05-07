@@ -29,10 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 class FaceGraphic extends GraphicOverlay.Graphic {
-    private static final float FACE_POSITION_RADIUS = 10.0f;
+   // private static final float FACE_POSITION_RADIUS = 10.0f;
     private static final float ID_TEXT_SIZE = 40.0f;
-    private static final float ID_Y_OFFSET = 50.0f;
-    private static final float ID_X_OFFSET = -50.0f;
+    //private static final float ID_Y_OFFSET = 50.0f;
+    //private static final float ID_X_OFFSET = -50.0f;
     private static final float BOX_STROKE_WIDTH = 5.0f;
     private static final int COLOR_CHOICES[] = {
             Color.YELLOW
@@ -40,91 +40,56 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     private static final double SMILING_PROB_THRESHOLD = .15;
     private static final double EYE_OPEN_PROB_THRESHOLD = .5;
     private static final float EMOJI_SCALE_FACTOR = .9f;
-    public static Canvas canvasSelected;
+   // public static Canvas canvasSelected;
     private static int mCurrentColorIndex = 0;
-    Bitmap emojiBitmap;
-    Drawable buttonBitmap;
     Context context;
-    private Canvas canvasSel;
     int i;
-    private Canvas canvas;
+   // private Canvas canvas;
     List<CameraButtons> list = new ArrayList<>();
-    private Paint mFacePositionPaint;
-    private Paint mIdPaint;
-    private Paint mBoxPaint;
-    private Paint mHintTextPaint;
-    private Paint mHintOutlinePaint;
-    private Paint mEyeWhitePaint;
-    private Paint mIrisPaint;
-    private Paint mEyeOutlinePaint;
-    private Paint mEyelidPaint;
-    private Drawable mPigNoseGraphic;
-    private Drawable mMustacheGraphic;
-    private Drawable mHappyStarGraphic;
     private Drawable mHatGraphic;
     private volatile Face mFace;
-    private int mFaceId;
-    private float mFaceHappiness;
-    private EyePhysics mLeftPhysics = new EyePhysics();
-    private EyePhysics mRightPhysics = new EyePhysics();
-    private boolean mIsFrontFacing;
 
     // This variable may be written to by one of many threads. By declaring it as volatile,
     // we guarantee that when we read its contents, we're reading the most recent "write"
     // by any thread.
     private volatile FaceData mFaceData;
-
+/*
     FaceGraphic(GraphicOverlay overlay, Context context, boolean isFrontFacing, List<CameraButtons> list) {
         super(overlay, context);
         this.context = context;
         mIsFrontFacing = isFrontFacing;
 
         this.list = addImage();
-        Resources resources = context.getResources();
-        initializePaints(resources);
-        initializeGraphics(resources);
-    }
 
-    FaceGraphic(GraphicOverlay overlay, Context context, int i, List<CameraButtons> list) {
+    }*/
+
+    FaceGraphic(GraphicOverlay overlay, Context context, int i,boolean isFrontFacing) {
         super(overlay, context);
         this.context = context;
         this.i = i;
         this.list = addImage();
+        Resources resources = context.getResources();
+        initializePaints(resources);
+        initializeGraphics(resources);
+
         mCurrentColorIndex = (mCurrentColorIndex + 1) % COLOR_CHOICES.length;
         final int selectedColor = COLOR_CHOICES[mCurrentColorIndex];
 
-        mFacePositionPaint = new Paint();
+        Paint mFacePositionPaint = new Paint();
         mFacePositionPaint.setColor(selectedColor);
 
-        mIdPaint = new Paint();
+        Paint mIdPaint = new Paint();
         mIdPaint.setColor(selectedColor);
         mIdPaint.setTextSize(ID_TEXT_SIZE);
 
-        mBoxPaint = new Paint();
+        Paint mBoxPaint = new Paint();
         mBoxPaint.setColor(selectedColor);
         mBoxPaint.setStyle(Paint.Style.STROKE);
         mBoxPaint.setStrokeWidth(BOX_STROKE_WIDTH);
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -133,34 +98,15 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         Bitmap resultBitmap = Bitmap.createBitmap(backgroundBitmap.getWidth(),
                 backgroundBitmap.getHeight(), backgroundBitmap.getConfig());
 
-        Canvas c = new Canvas(resultBitmap);
-        c = canvasSel;
 
         canvasSel.getHeight();
         canvasSel.getWidth();
         return resultBitmap;
     }
+*/
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public static Emoji getEmoji(Face face) {
+    private Emoji getEmoji(Face face) {
         Log.d("smile", String.valueOf(face.getIsSmilingProbability()));
 
         Log.d("rightEye", String.valueOf(face.getIsRightEyeOpenProbability()));
@@ -199,9 +145,9 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     }
 
     private void initializeGraphics(Resources resources) {
-        mPigNoseGraphic = resources.getDrawable(R.drawable.pig_nose_emoji);
-        mMustacheGraphic = resources.getDrawable(R.drawable.mustache);
-        mHappyStarGraphic = resources.getDrawable(R.drawable.happy_star);
+        //Drawable mPigNoseGraphic = resources.getDrawable(R.drawable.pig_nose_emoji);
+        //Drawable mMustacheGraphic = resources.getDrawable(R.drawable.mustache);
+        //Drawable mHappyStarGraphic = resources.getDrawable(R.drawable.happy_star);
         mHatGraphic = resources.getDrawable(R.drawable.red_hat);
     }
 
@@ -211,7 +157,6 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     }
 
     void setId(int id) {
-        mFaceId = id;
     }
 
     /**
@@ -269,10 +214,10 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         PointF rightEyePosition = new PointF(translateX(detectRightEyePosition.x),
                 translateY(detectRightEyePosition.y));
 
-        // Eye state
+   /*     // Eye state
         boolean leftEyeOpen = faceData.isLeftEyeOpen();
         boolean rightEyeOpen = faceData.isRightEyeOpen();
-
+*/
         // Nose coordinates
         PointF noseBasePosition = new PointF(translateX(detectNoseBasePosition.x),
                 translateY(detectNoseBasePosition.y));
@@ -283,33 +228,37 @@ class FaceGraphic extends GraphicOverlay.Graphic {
                 translateY(detectMouthLeftPosition.y));
         PointF mouthRightPosition = new PointF(translateX(detectMouthRightPosition.x),
                 translateY(detectMouthRightPosition.y));
+/*
         PointF mouthBottomPosition = new PointF(translateX(detectMouthBottomPosition.x),
                 translateY(detectMouthBottomPosition.y));
 
         boolean smiling = faceData.isSmiling();
+*/
 
         // Head tilt
-        float eulerY = faceData.getEulerY();
+    //    float eulerY = faceData.getEulerY();
         float eulerZ = faceData.getEulerZ();
 
 
         // Calculate the distance between the eyes using Pythagoras' formula,
         // and we'll use that distance to set the size of the eyes and irises.
-        final float EYE_RADIUS_PROPORTION = 0.45f;
-        final float IRIS_RADIUS_PROPORTION = EYE_RADIUS_PROPORTION / 2.0f;
+//        final float EYE_RADIUS_PROPORTION = 0.45f;
+     /*   final float IRIS_RADIUS_PROPORTION = EYE_RADIUS_PROPORTION / 2.0f;
         float distance = (float) Math.sqrt(
                 (rightEyePosition.x - leftEyePosition.x) * (rightEyePosition.x - leftEyePosition.x) +
                         (rightEyePosition.y - leftEyePosition.y) * (rightEyePosition.y - leftEyePosition.y));
+*//*
         float eyeRadius = EYE_RADIUS_PROPORTION * distance;
         float irisRadius = IRIS_RADIUS_PROPORTION * distance;
 
+*/
         // Draw the hat only if the subject's head is titled at a
         // sufficiently jaunty angle.
         // Draw the eyes.
-        PointF leftIrisPosition = mLeftPhysics.nextIrisPosition(leftEyePosition, eyeRadius, irisRadius);
+       /* PointF leftIrisPosition = mLeftPhysics.nextIrisPosition(leftEyePosition, eyeRadius, irisRadius);
         //drawEye(canvas, leftEyePosition, eyeRadius, leftIrisPosition, irisRadius, leftEyeOpen, smiling);
         PointF rightIrisPosition = mRightPhysics.nextIrisPosition(rightEyePosition, eyeRadius, irisRadius);
-        //drawEye(canvas, rightEyePosition, eyeRadius, rightIrisPosition, irisRadius, rightEyeOpen, smiling);
+       */ //drawEye(canvas, rightEyePosition, eyeRadius, rightIrisPosition, irisRadius, rightEyeOpen, smiling);
 
         // Draw the nose.
        // drawNose(canvas, noseBasePosition, leftEyePosition, rightEyePosition, width);
@@ -390,6 +339,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         float bottom = y + yOffset;*/
 
 
+        Drawable buttonBitmap;
         if (i > 0 && i<6) {
             buttonBitmap = getBit(i);
             float noseWidth = width * scaleFactor;
@@ -417,7 +367,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
             buttonBitmap.draw(canvas);
         }else if (i >5 && i <7){
             buttonBitmap = getBit(i);
-            BitmapDrawable bitmapDrawable = (BitmapDrawable)buttonBitmap;
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) buttonBitmap;
             Bitmap bitmap = bitmapDrawable.getBitmap();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.PNG,100,out);
@@ -427,7 +377,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
             float noseWidth = width * scaleFactor;
             int left = (int) (noseBasePosition.x - (noseWidth / 2));
             int right = (int) (noseBasePosition.x + (noseWidth / 2));
-            int top = (int) (int) noseBasePosition.y / 3 ;
+            int top = (int) noseBasePosition.y / 3 ;
             int bottom = (int) Math.min(mouthLeftPosition.y, mouthRightPosition.y)/2+ 200;
 
             drawable.setBounds(left, top, right, bottom);
@@ -461,18 +411,16 @@ class FaceGraphic extends GraphicOverlay.Graphic {
 
 //        canvas.drawRect(left, top, right, bottom, mBoxPaint);
 
-        canvasSel = canvas;
-
     }
 
-    public Canvas getCanvasSel() {
+ /*   public Canvas getCanvasSel() {
         return canvasSel;
-    }
+    }*/
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private Drawable getBit(int id) {
         Drawable bitmap;
-        CameraButtons cameraButtons = new CameraButtons();
+        CameraButtons cameraButtons;
         cameraButtons = list.get(id);
         bitmap = context.getDrawable(cameraButtons.getImagePath());
         return bitmap;
@@ -480,29 +428,29 @@ class FaceGraphic extends GraphicOverlay.Graphic {
 
 
     private void initializePaints(Resources resources) {
-        mHintTextPaint = new Paint();
+        Paint mHintTextPaint = new Paint();
         mHintTextPaint.setColor(resources.getColor(R.color.overlayHint));
         mHintTextPaint.setTextSize(resources.getDimension(R.dimen.textSize));
 
-        mHintOutlinePaint = new Paint();
+        Paint mHintOutlinePaint = new Paint();
         mHintOutlinePaint.setColor(resources.getColor(R.color.overlayHint));
         mHintOutlinePaint.setStyle(Paint.Style.STROKE);
         mHintOutlinePaint.setStrokeWidth(resources.getDimension(R.dimen.hintStroke));
 
-        mEyeWhitePaint = new Paint();
+        Paint mEyeWhitePaint = new Paint();
         mEyeWhitePaint.setColor(resources.getColor(R.color.eyeWhite));
         mEyeWhitePaint.setStyle(Paint.Style.FILL);
 
-        mIrisPaint = new Paint();
+        Paint mIrisPaint = new Paint();
         mIrisPaint.setColor(resources.getColor(R.color.iris));
         mIrisPaint.setStyle(Paint.Style.FILL);
 
-        mEyeOutlinePaint = new Paint();
+        Paint mEyeOutlinePaint = new Paint();
         mEyeOutlinePaint.setColor(resources.getColor(R.color.eyeOutline));
         mEyeOutlinePaint.setStyle(Paint.Style.STROKE);
         mEyeOutlinePaint.setStrokeWidth(resources.getDimension(R.dimen.eyeOutlineStroke));
 
-        mEyelidPaint = new Paint();
+        Paint mEyelidPaint = new Paint();
         mEyelidPaint.setColor(resources.getColor(R.color.eyelid));
         mEyelidPaint.setStyle(Paint.Style.FILL);
     }
@@ -511,7 +459,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     // Cartoon feature draw routines
     // =============================
 
-    private void drawEye(Canvas canvas,
+   /* private void drawEye(Canvas canvas,
                          PointF eyePosition, float eyeRadius,
                          PointF irisPosition, float irisRadius,
                          boolean eyeOpen, boolean smiling) {
@@ -570,7 +518,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
             mMustacheGraphic.setBounds(right, top, left, bottom);
         }
         mMustacheGraphic.draw(canvas);
-    }
+    }*/
 
     private void drawHat(Canvas canvas, PointF facePosition, float faceWidth, float faceHeight, PointF noseBasePosition) {
         final float HAT_FACE_WIDTH_RATIO = (float) (1.0 / 4.0);
@@ -623,8 +571,8 @@ class FaceGraphic extends GraphicOverlay.Graphic {
 
 
 
-    public ArrayList<CameraButtons> addImage() {
-        ArrayList<CameraButtons> list = new ArrayList<CameraButtons>();
+    private ArrayList<CameraButtons> addImage() {
+        ArrayList<CameraButtons> list = new ArrayList<>();
         CameraButtons cameraButtons0 = new CameraButtons();
         cameraButtons0.setImagePath(R.drawable.frown);
         list.add(cameraButtons0);

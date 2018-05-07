@@ -123,7 +123,7 @@ public class ShareActivity extends AppCompatActivity {
                     String path = intent.getStringExtra("image");
                     File fp=new File(path);
                     Bitmap b = BitmapFactory.decodeStream(new FileInputStream(fp));
-                    onClickApp("com.whatsapp",b);
+                    onClickApp("com.instagram.android",b);
 
 
                 }
@@ -243,6 +243,14 @@ public class ShareActivity extends AppCompatActivity {
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(ShareActivity.this,
+                StartHome.class));
+        finish();
     }
 }
 

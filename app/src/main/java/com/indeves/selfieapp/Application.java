@@ -1,5 +1,7 @@
 package com.indeves.selfieapp;
 
+import com.squareup.leakcanary.LeakCanary;
+
 import ly.img.android.PESDK;
 
 public class Application extends android.app.Application {
@@ -7,7 +9,15 @@ public class Application extends android.app.Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return;
+        }
+        LeakCanary.install(this);
+        // Normal app init code...
 
-        PESDK.init(this, "android_license");     }
+        PESDK.init(this, "android_license");
+    }
 
 }

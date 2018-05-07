@@ -14,47 +14,29 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.graphics.YuvImage;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.hardware.Camera;
-import android.media.ExifInterface;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Size;
-import android.util.SparseArray;
-import android.view.Display;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.CameraSource;
-import com.google.android.gms.vision.Frame;
+
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.face.Face;
@@ -62,62 +44,56 @@ import com.google.android.gms.vision.face.FaceDetector;
 import com.google.android.gms.vision.face.Landmark;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static android.os.Environment.getExternalStorageDirectory;
-import static android.view.View.DRAWING_CACHE_QUALITY_HIGH;
-import static java.io.File.separator;
-
-
 public class CameraActivity extends AppCompatActivity {
     //reverted
-    private static final String TAG = "CamiraActivity";
-    private static final int RC_HANDLE_GMS = 9001;
-    private static final int RC_HANDLE_CAMERA_PERM = 2;
-    private static final String KEY_LAYOUT_MANAGER = "layoutManager";
-    private static final int SPAN_COUNT = 2;
-    public static List<CameraButtons> listOfImages = new ArrayList<>();
-    public static int imageSelectNum;
-    protected RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-    protected LayoutManagerType mCurrentLayoutManagerType;
+   // private  final String TAG = "CamiraActivity";
+    private  final int RC_HANDLE_CAMERA_PERM = 2;
+  //  private static final String KEY_LAYOUT_MANAGER = "layoutManager";
+    //private static final int SPAN_COUNT = 2;
+    //public static List<CameraButtons> listOfImages = new ArrayList<>();
+   // public static int imageSelectNum;
+    //protected RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+    //protected LayoutManagerType mCurrentLayoutManagerType;
     ImageID imageID = new ImageID();
-    ImageView imageView;
-    RelativeLayout lable;
-    ImageButton capture;
+    //ImageView imageView;
+   // RelativeLayout lable;
+  //  ImageButton capture;
     FaceGraphic mFaceGraphic;
-    ImageButton getFrame;
+  //  ImageButton getFrame;
     // permission request codes need to be < 256
-    String photo = "";
-    Camera.ShutterCallback shutterCallback;
-    int i = 0;
-    RecyclerView recyclerView;
+   // String photo = "";
+    //Camera.ShutterCallback shutterCallback;
+    //int i = 0;
+   // RecyclerView recyclerView;
     FaceDetector detector;
-    CameraAdaptor cameraAdaptor;
+    //CameraAdaptor cameraAdaptor;
     private CameraSource mCameraSource = null;
-    private FaceData mFaceData = new FaceData();
+  //  private FaceData mFaceData = new FaceData();
+    @SuppressLint("UseSparseArrays")
     private Map<Integer, PointF> mPreviousLandmarkPositions = new HashMap<>();
     // As with facial landmarks, we keep track of the eye’s previous open/closed states
     // so that we can use them during those moments when they momentarily go undetected.
-    private boolean mPreviousIsLeftEyeOpen = true;
+   /* private boolean mPreviousIsLeftEyeOpen = true;
     private boolean mPreviousIsRightEyeOpen = true;
-    private CameraSourcePreview mPreview;
+   */ private CameraSourcePreview mPreview;
     private GraphicOverlay mGraphicOverlay;
     private Context context = CameraActivity.this;
     //FrameLayout linearLayout;
     private boolean mIsFrontFacing = true;
-    private FaceGraphic faceGraphic;
+    //private FaceGraphic faceGraphic;
+   // ProgressDialog progress;
 
-    FaceData faceData;
-    Face face;
+    //FaceData faceData;
+    //Face face;
 
     private View.OnClickListener mSwitchCameraButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -141,25 +117,27 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        System.gc();
         mPreview = findViewById(R.id.preview);
         mGraphicOverlay = findViewById(R.id.faceOverlay);
-        lable = findViewById(R.id.lable);
+       // RelativeLayout lable = findViewById(R.id.lable);
         GraphicOverlay.setContext(getApplicationContext());
-        imageView = findViewById(R.id.image);
+        ImageView imageView = findViewById(R.id.image);
         imageView.setVisibility(View.GONE);
         //recyclerView = findViewById(R.id.rec);
-        getFrame = findViewById(R.id.get_frame);
+        ImageButton getFrame = findViewById(R.id.get_frame);
         getFrame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(CameraActivity.this, AddFraneActivity.class));
+                finish();
             }
         });
 //        recyclerView.setBackground(getDrawable(R.drawable.white));
 
 //        linearLayout.setDrawingCacheEnabled(true);
 
-        final ImageButton button = (ImageButton) findViewById(R.id.flipButton);
+        final ImageButton button = findViewById(R.id.flipButton);
         button.setOnClickListener(mSwitchCameraButtonListener);
 
         if (savedInstanceState != null) {
@@ -176,13 +154,17 @@ public class CameraActivity extends AppCompatActivity {
         }
         int position = getIntent().getIntExtra("position", 0);
         imageID.setId(position);
-
-        capture = findViewById(R.id.capture);
+     /*   progress = new ProgressDialog(this);
+        progress.setTitle("");
+        progress.setMessage("Wait while Processing...");
+        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+      */ ImageButton  capture = findViewById(R.id.capture);
         capture.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {/*mCameraSource.release();*/
               //  captureImage();
-                Log.d("button", "detected");
+//                Log.d("button", "detected");
 
+              //  progress.show();
 
                 mCameraSource.takePicture(null, new CameraSource.PictureCallback() {
 
@@ -199,22 +181,25 @@ public class CameraActivity extends AppCompatActivity {
                         imageView.setImageBitmap(emojifier.detecFaces(getApplicationContext(),flip(image2),imageID.getId(),mFaceData,null));*//**//**//**//*
 */
                         // Generate the Face Bitmap
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        Bitmap face = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+                       // BitmapFactory.Options options = new BitmapFactory.Options();
+                        Bitmap face = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, new BitmapFactory.Options());
 
                         // Generate the Eyes Overlay Bitmap
                         mPreview.setDrawingCacheEnabled(true);
-                        Bitmap overlay = mPreview.getDrawingCache();
+                        //Bitmap overlay = mPreview.getDrawingCache();
 
-                        // Generate the final merged image
-                        Bitmap result = mergeBitmaps(flip(face), overlay);
+
+                        Bitmap result = mergeBitmaps(flip(face), mPreview.getDrawingCache());
                      //   mPreview.setVisibility(View.GONE);
                        // imageView.setVisibility(View.VISIBLE);
                        // imageView.setImageBitmap(result);
-                       // saveInInternalStorage(result);
+
+                        String re = saveInInternalStorage(result);
                         Intent intent = new Intent(CameraActivity.this,ShareActivity.class);
-                        intent.putExtra("image",saveInInternalStorage(result));
+                        intent.putExtra("image",re);
+                      //  progress.dismiss();
                         startActivity(intent);
+                        finish();
 
 
                     }
@@ -243,6 +228,7 @@ public class CameraActivity extends AppCompatActivity {
             e.printStackTrace();
         } finally {
             try {
+                assert fos != null;
                 fos.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -272,6 +258,7 @@ public class CameraActivity extends AppCompatActivity {
 
 
 
+/*
     private void captureImage() {
         mPreview.setDrawingCacheEnabled(true);
         final Bitmap drawingCache = mPreview.getDrawingCache();
@@ -320,9 +307,10 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
     }
+*/
 
 
-    public  static class Exif {
+   /* public  static class Exif {
         private  final String TAG = "CameraExif";
 
         // Returns the degrees in clockwise. Values are 0, 90, 180, or 270.
@@ -482,7 +470,7 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-
+*/
 
     public static Bitmap flip(Bitmap src) {
         // create new matrix for transformation
@@ -493,6 +481,7 @@ public class CameraActivity extends AppCompatActivity {
         // return transformed image
         return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
     }
+/*
     public Bitmap loadBitmapFromView(View v, int width, int height) {
         Bitmap b = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
@@ -518,6 +507,7 @@ public class CameraActivity extends AppCompatActivity {
         float y = face.getPosition().y + (landmarkPosition.y * face.getHeight());
         return new PointF(x, y);
     }
+*/
 
 
     @Override
@@ -527,7 +517,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void requestCameraPermission() {
-        Log.w(TAG, "Camera permission not acquired. Requesting permission.");
+        //Log.w(TAG, "Camera permission not acquired. Requesting permission.");
 
         final String[] permissions = new String[]{Manifest.permission.CAMERA};
         if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -553,23 +543,23 @@ public class CameraActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode != RC_HANDLE_CAMERA_PERM) {
-            Log.d(TAG, "Got unexpected permission result: " + requestCode);
+           // Log.d(TAG, "Got unexpected permission result: " + requestCode);
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
             return;
         }
 
         if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             // We have permission to access the camera, so create the camera source.
-            Log.d(TAG, "Camera permission granted - initializing camera source.");
+           // Log.d(TAG, "Camera permission granted - initializing camera source.");
             createCameraSource();
             return;
         }
 
         // If we've reached this part of the method, it means that the user hasn't granted the app
-        // access to the camera. Notify the user and exit.
-        Log.e(TAG, "Permission not granted: results len = " + grantResults.length +
-                " Result code = " + (grantResults.length > 0 ? grantResults[0] : "(empty)"));
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+        // access to the camera. Notify the user and exit./*
+      /*  Log.e(TAG, "Permission not granted: results len = " + grantResults.length +
+                " Result code = " + (grantResults.length > 0 ? grantResults[0] : "(empty)"));*//*
+     */   DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 finish();
             }
@@ -582,7 +572,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     public List<CameraButtons> addImage() {
-        List<CameraButtons> list = new ArrayList<CameraButtons>();
+        List<CameraButtons> list = new ArrayList<>();
         CameraButtons cameraButtons0 = new CameraButtons();
         cameraButtons0.setImagePath(R.drawable.frown);
         list.add(cameraButtons0);
@@ -642,8 +632,7 @@ public class CameraActivity extends AppCompatActivity {
         mCameraSource = new CameraSource.Builder(context, detector)
                 .setFacing(facing)
                 .setRequestedPreviewSize(1280, 960)
-                .setRequestedFps(60.0f)
-                .setAutoFocusEnabled(true)
+                .setRequestedFps(30.0f)
                 .build();
 
     }
@@ -653,8 +642,6 @@ public class CameraActivity extends AppCompatActivity {
         detector = new FaceDetector.Builder(context)
                 .setLandmarkType(FaceDetector.ALL_LANDMARKS)
                 .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
-                .setTrackingEnabled(true)
-                .setMode(FaceDetector.FAST_MODE)
                 .setProminentFaceOnly(mIsFrontFacing)
                 .setMinFaceSize(mIsFrontFacing ? 0.35f : 0.15f)
                 .build();
@@ -665,7 +652,7 @@ public class CameraActivity extends AppCompatActivity {
                         .build());
 
         if (!detector.isOperational()) {
-            Log.w(TAG, "Face detector dependencies are not yet available.");
+           // Log.w(TAG, "Face detector dependencies are not yet available.");
 
             // Check the device's storage.  If there's little available storage, the native
             // face detection library will not be downloaded, and the app won't work,
@@ -674,7 +661,7 @@ public class CameraActivity extends AppCompatActivity {
             boolean hasLowStorage = registerReceiver(null, lowStorageFilter) != null;
 
             if (hasLowStorage) {
-                Log.w(TAG, getString(R.string.low_storage_error));
+                //Log.w(TAG, getString(R.string.low_storage_error));
                 DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         finish();
@@ -688,6 +675,7 @@ public class CameraActivity extends AppCompatActivity {
             }
         }
     }
+/*
 
     public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
         int width = bm.getWidth();
@@ -701,6 +689,7 @@ public class CameraActivity extends AppCompatActivity {
 
         return resizedBitmap;
     }
+*/
 
     /**
      * Restarts the camera.
@@ -728,8 +717,9 @@ public class CameraActivity extends AppCompatActivity {
         int code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
                 getApplicationContext());
         if (code != ConnectionResult.SUCCESS) {
+          //  int RC_HANDLE_GMS = 9001;
             Dialog dlg =
-                    GoogleApiAvailability.getInstance().getErrorDialog(this, code, RC_HANDLE_GMS);
+                    GoogleApiAvailability.getInstance().getErrorDialog(this, code, 9001);
             dlg.show();
         }
 
@@ -737,45 +727,16 @@ public class CameraActivity extends AppCompatActivity {
             try {
                 mPreview.start(mCameraSource, mGraphicOverlay);
             } catch (IOException e) {
-                Log.e(TAG, "Unable to start camera source.", e);
+              //  Log.e(TAG, "Unable to start camera source.", e);
                 mCameraSource.release();
                 mCameraSource = null;
             }
         }
     }
 
-    public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {
-        int scrollPosition = 0;
-
-        // If a layout manager has already been set, get current scroll position.
-        if (recyclerView.getLayoutManager() != null) {
-            scrollPosition = ((LinearLayoutManager) recyclerView.getLayoutManager())
-                    .findFirstCompletelyVisibleItemPosition();
-        }
-
-        switch (layoutManagerType) {
-            case GRID_LAYOUT_MANAGER:
-                mLayoutManager = new GridLayoutManager(getBaseContext(), SPAN_COUNT);
-                mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
-                break;
-            case LINEAR_LAYOUT_MANAGER:
-                mLayoutManager = new LinearLayoutManager(getBaseContext());
-                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
-                break;
-            default:
-                mLayoutManager = new LinearLayoutManager(getBaseContext());
-                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
-        }
-
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.scrollToPosition(scrollPosition);
-    }
 
 
-    private enum LayoutManagerType {
-        GRID_LAYOUT_MANAGER,
-        LINEAR_LAYOUT_MANAGER
-    }
+
 
     private class GraphicFaceTrackerFactory implements MultiProcessor.Factory<Face> {
 
@@ -811,9 +772,9 @@ public class CameraActivity extends AppCompatActivity {
 
         GraphicFaceTracker(GraphicOverlay overlay, Context context) {
             this.mContext = context;
-            Log.isLoggable("Hi", imageID.getId());
+           // Log.isLoggable("Hi", imageID.getId());
             mOverlay = overlay;
-            mFaceGraphic = new FaceGraphic(overlay, context, imageID.getId(), addImage());
+            mFaceGraphic = new FaceGraphic(overlay, context, imageID.getId(), mIsFrontFacing);
 
         }
 
@@ -821,8 +782,7 @@ public class CameraActivity extends AppCompatActivity {
         // Start tracking the detected face instance within the face overlay.
         @Override
         public void onNewItem(int faceId, Face item) {
-            mFaceGraphic = new FaceGraphic(mOverlay, mContext, mIsFrontFacing, null);
-            mFaceGraphic.setId(faceId);
+           // mFaceGraphic.setId(faceId);
         }
 
 
@@ -832,7 +792,9 @@ public class CameraActivity extends AppCompatActivity {
         @Override
         public void onUpdate(FaceDetector.Detections<Face> detectionResults, Face face) {
             mOverlay.add(mFaceGraphic);
-
+           //  boolean mPreviousIsLeftEyeOpen = true;
+            // boolean mPreviousIsRightEyeOpen = true;
+            FaceData mFaceData = new FaceData();
             updatePreviousLandmarkPositions(face);
 
             // Get face dimensions.
@@ -862,23 +824,21 @@ public class CameraActivity extends AppCompatActivity {
             final float EYE_CLOSED_THRESHOLD = 0.4f;
             float leftOpenScore = face.getIsLeftEyeOpenProbability();
             if (leftOpenScore == Face.UNCOMPUTED_PROBABILITY) {
-                mFaceData.setLeftEyeOpen(mPreviousIsLeftEyeOpen);
+                mFaceData.setLeftEyeOpen(true);
             } else {
                 mFaceData.setLeftEyeOpen(leftOpenScore > EYE_CLOSED_THRESHOLD);
-                mPreviousIsLeftEyeOpen = mFaceData.isLeftEyeOpen();
             }
             float rightOpenScore = face.getIsRightEyeOpenProbability();
             if (rightOpenScore == Face.UNCOMPUTED_PROBABILITY) {
-                mFaceData.setRightEyeOpen(mPreviousIsRightEyeOpen);
+                mFaceData.setRightEyeOpen(true);
             } else {
                 mFaceData.setRightEyeOpen(rightOpenScore > EYE_CLOSED_THRESHOLD);
-                mPreviousIsRightEyeOpen = mFaceData.isRightEyeOpen();
             }
 
             // See if there's a smile!
             // Determine if person is smiling.
-            final float SMILING_THRESHOLD = 0.8f;
-            mFaceData.setSmiling(face.getIsSmilingProbability() > SMILING_THRESHOLD);
+           // final float SMILING_THRESHOLD = 0.8f;
+            mFaceData.setSmiling(face.getIsSmilingProbability() > 0.8f);
             mFaceGraphic.update(mFaceData);
             mFaceGraphic.updateFace(face, imageID.getId());
 

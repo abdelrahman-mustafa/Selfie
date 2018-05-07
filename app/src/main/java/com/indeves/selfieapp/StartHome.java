@@ -102,9 +102,11 @@ public class StartHome extends AppCompatActivity implements View.OnClickListener
 
         } else if (v == track || v == trackMyFace) {
             startActivity(new Intent(StartHome.this, CameraActivity.class));
+            finish();
 
         } else if (v == pickForPhone || v == pickFromGallery) {
             startActivity(new Intent(StartHome.this, MainActivity.class));
+            finish();
 
         }
 
