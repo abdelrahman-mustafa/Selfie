@@ -37,6 +37,8 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     private static final int COLOR_CHOICES[] = {
             Color.YELLOW
     };
+    private int mFaceId;
+
     private static final double SMILING_PROB_THRESHOLD = .15;
     private static final double EYE_OPEN_PROB_THRESHOLD = .5;
     private static final float EMOJI_SCALE_FACTOR = .9f;
@@ -157,6 +159,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     }
 
     void setId(int id) {
+        mFaceId = id;
     }
 
     /**

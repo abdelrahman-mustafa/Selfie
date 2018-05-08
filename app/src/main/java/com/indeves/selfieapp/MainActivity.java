@@ -77,7 +77,7 @@ public class MainActivity extends Activity implements PermissionRequest.Response
         } else if (resultCode == RESULT_CANCELED && requestCode == CAMERA_PREVIEW_RESULT && data != null) {
             String sourcePath = data.getStringExtra(ImgLyIntent.SOURCE_IMAGE_PATH);
             Toast.makeText(PESDK.getAppContext(), "Editor canceled, sourceType image is:\n" + sourcePath, Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(new Intent(MainActivity.this,ShareActivity.class));
+            Intent intent = new Intent(new Intent(MainActivity.this,StartHome.class));
             intent.putExtra("inage",sourcePath);
             startActivity(intent);
             finish();

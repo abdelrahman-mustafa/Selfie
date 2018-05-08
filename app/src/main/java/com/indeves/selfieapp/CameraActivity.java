@@ -117,7 +117,7 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
-        System.gc();
+        //System.gc();
         mPreview = findViewById(R.id.preview);
         mGraphicOverlay = findViewById(R.id.faceOverlay);
        // RelativeLayout lable = findViewById(R.id.lable);
@@ -195,6 +195,7 @@ public class CameraActivity extends AppCompatActivity {
                        // imageView.setImageBitmap(result);
 
                         String re = saveInInternalStorage(result);
+                        Log.i("GGGG",re);
                         Intent intent = new Intent(CameraActivity.this,ShareActivity.class);
                         intent.putExtra("image",re);
                       //  progress.dismiss();
@@ -782,7 +783,7 @@ public class CameraActivity extends AppCompatActivity {
         // Start tracking the detected face instance within the face overlay.
         @Override
         public void onNewItem(int faceId, Face item) {
-           // mFaceGraphic.setId(faceId);
+            mFaceGraphic.setId(faceId);
         }
 
 

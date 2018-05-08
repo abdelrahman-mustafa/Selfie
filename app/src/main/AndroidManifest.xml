@@ -32,7 +32,7 @@
         android:xlargeScreens="true" />
 
     <application
-        android:name=".Application"
+
         android:allowBackup="true"
         android:hardwareAccelerated="false"
         android:icon="@drawable/selfie"

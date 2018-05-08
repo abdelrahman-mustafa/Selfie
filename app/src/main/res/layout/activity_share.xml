@@ -24,12 +24,12 @@
 
         <ImageButton
             android:id="@+id/back_button"
-            android:layout_width="35dp"
-            android:layout_height="25dp"
+            android:layout_width="45dp"
+            android:layout_height="21dp"
             android:layout_gravity="left|center_vertical"
             android:layout_weight=".1"
             android:background="#ffff"
-            android:paddingLeft="10dp"
+            android:paddingLeft="20dp"
             android:src="@drawable/icon7" />
 
         <TextView
@@ -43,10 +43,11 @@
             android:textSize="25sp"
             android:textStyle="bold" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/flipButton"
-            android:layout_width="30dp"
-            android:layout_height="36dp"
+            android:layout_weight=".01"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
              />
@@ -95,7 +96,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="15dp"
         android:background="#243dca"
         android:paddingLeft="10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -129,7 +130,7 @@
         android:layout_height="47dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="15dp"
         android:background="@drawable/images"
         android:paddingLeft="10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -161,16 +162,16 @@
         android:id="@+id/linearLayout4"
         android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="15dp"
         android:background="#7f91f2"
         android:paddingLeft="10dp"
         app:layout_constraintBottom_toTopOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
+        app:layout_constraintVertical_bias="0.0">
 
         <ImageView
             android:layout_width="match_parent"
@@ -194,8 +195,8 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="220dp"
+        android:layout_height="150dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"

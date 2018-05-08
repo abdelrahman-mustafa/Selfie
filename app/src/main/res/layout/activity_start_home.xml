@@ -6,12 +6,14 @@
     android:layout_height="match_parent"
     android:background="@drawable/background"
     android:orientation="horizontal"
+
     tools:context="com.indeves.selfieapp.StartHome">
+
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="300dp"
-        android:padding="20dp"
+        android:padding="75dp"
         android:src="@drawable/home_screen_slogan"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,8 +47,8 @@
 
             <ImageView
                 android:id="@+id/icon3"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/pick_from_gallery" />
@@ -76,8 +78,8 @@
 
             <ImageView
                 android:id="@+id/icon2"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
                 android:src="@drawable/track_my_face" />

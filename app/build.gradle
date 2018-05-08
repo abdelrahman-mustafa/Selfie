@@ -46,6 +46,8 @@ dependencies {
     compile 'com.andrognito.pinlockview:pinlockview:2.1.0'
     compile 'com.github.zomato:androidphotofilters:1.0.1'
     compile 'com.bignerdranch.android:simple-item-decoration:1.0.0'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+
     compile 'ly.img.android:photo-editor-sdk:5.0.22'
 }
 

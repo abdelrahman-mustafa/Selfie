@@ -10,6 +10,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
         android:background="#FFFF"
         android:orientation="horizontal"
         >
@@ -63,6 +65,7 @@
 
         </com.indeves.selfieapp.CameraSourcePreview>
 
+<!--
     <ImageView
         android:id="@+id/imag"
         android:layout_above="@id/view8"
@@ -73,13 +76,14 @@
         android:layout_gravity="bottom|center_horizontal"
         android:visibility="gone" />
 
+-->
 
     <ImageView
         android:id="@+id/image"
-        android:layout_below="@id/view0"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="70dp"
+        android:layout_height="40dp"
         android:layout_above="@id/view8"
+        android:src="@drawable/home_screen_slogan"
         android:layout_alignParentRight="true"
         android:layout_gravity="bottom|right"
         tools:ignore="RtlHardcoded" />

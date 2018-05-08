@@ -21,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,12 +36,32 @@ public class ShareActivity extends AppCompatActivity {
 
 
     private static final int REQUEST_PERMISSION = 0;
+    ImageView imageView;
 
     LinearLayout linearLayout,linearLayout2,linearLayout3,linearLayout4 ;
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
+
+        imageView = findViewById(R.id.flipButton);
+        Intent intent = getIntent();
+        String path = intent.getStringExtra("image");
+        Log.i("gggg",path);
+        File fp = new File(path);
+        Bitmap b = null;
+        try {
+            b = BitmapFactory.decodeStream(new FileInputStream(fp));
+            imageView.setImageBitmap(b);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+       // onClickApp("",b);
+       // Picasso.with(ShareActivity.this).load(path).resize(35, 35).transform(new CircleTransform()).into(imageView);
+       // imageView.setImageBitmap();
+
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -101,7 +123,7 @@ public class ShareActivity extends AppCompatActivity {
                     String path = intent.getStringExtra("image");
                     File fp=new File(path);
                     Bitmap b = BitmapFactory.decodeStream(new FileInputStream(fp));
-                    onClickApp("com.twitter.android",b);
+                    onClickApp("com.whatsapp",b);
 
 
                 }
